@@ -37,7 +37,7 @@ function dynamic_pages_creator_settings_page() {
         <p>Use this page to create dynamic pages with SEO meta tags.</p>
         <form method="post" action="options.php">
             <?php
-            settings_fields('dynamic-pages-creator-options');
+            settings_fields('dynamic_pages_creator_options');
             do_settings_sections('dynamic-pages-creator');
             submit_button('Create Pages');
             ?>
