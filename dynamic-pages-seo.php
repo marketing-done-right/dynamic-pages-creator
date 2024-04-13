@@ -35,6 +35,7 @@ function dynamic_pages_creator_settings_page() {
     <div class="wrap">
         <h2>Dynamic Pages Creator</h2>
         <p>Use this page to create dynamic pages with SEO meta tags.</p>
+        <?php settings_errors(); ?> <!-- Display settings errors -->
         <form method="post" action="options.php">
             <?php
             settings_fields('dynamic_pages_creator_options');
