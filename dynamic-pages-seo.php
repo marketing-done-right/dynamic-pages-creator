@@ -53,7 +53,7 @@ function dynamic_pages_creator_settings_page() {
 add_action('admin_init', 'dynamic_pages_creator_settings_init');
 
 function dynamic_pages_creator_settings_init() {
-    register_setting('dynamic_pages_creator_options', 'dynamic_pages_creator_slugs', 'dynamic_pages_creator_create_pages');
+    register_setting('dynamic_pages_creator_options', 'dynamic_pages_creator_options', 'dynamic_pages_creator_options_validate');
 
     add_settings_section(
         'dynamic_pages_creator_main', 
@@ -66,6 +66,14 @@ function dynamic_pages_creator_settings_init() {
         'dynamic_pages_creator_slug_field', 
         'Page Slugs (comma-separated)', 
         'dynamic_pages_creator_slug_field_callback', 
+        'dynamic-pages-creator', 
+        'dynamic_pages_creator_main'
+    );
+
+    add_settings_field(
+        'dynamic_pages_creator_parent_field', 
+        'Parent Page', 
+        'dynamic_pages_creator_parent_field_callback', 
         'dynamic-pages-creator', 
         'dynamic_pages_creator_main'
     );
@@ -83,7 +91,21 @@ function dynamic_pages_creator_settings_section_callback() {
  */
 function dynamic_pages_creator_slug_field_callback() {
     echo "<input type='text' id='dynamic_pages_creator_slug_field' name='dynamic_pages_creator_slugs' value='' placeholder='Enter slugs separated by commas' style='width: 100%;'>";
-}  
+}
+
+/**
+ * Output the parent page dropdown
+ */
+function dynamic_pages_creator_parent_field_callback() {
+    $pages = get_pages(); // Retrieve an array of all pages
+    $selected_parent = get_option('dynamic_pages_creator_parent'); // Get the saved parent ID, if any
+    echo '<select id="dynamic_pages_creator_parent_field" name="dynamic_pages_creator_options[parent]">';
+    echo '<option value="0"' . (empty($selected_parent) ? ' selected="selected"' : '') . '>Main Page (no parent)</option>';
+    foreach ($pages as $page) {
+        echo '<option value="' . esc_attr($page->ID) . '"' . ($selected_parent == $page->ID ? ' selected="selected"' : '') . '>' . esc_html($page->post_title) . '</option>';
+    }
+    echo '</select>';
+}
 
 /**
  * Create pages based on the slugs provided in the input field
@@ -92,7 +114,10 @@ function dynamic_pages_creator_slug_field_callback() {
  * @return string The input field value
  */
 
-function dynamic_pages_creator_create_pages($input) {
+function dynamic_pages_creator_create_pages($options) {
+    $input = isset($options['slugs']) ? $options['slugs'] : '';
+    $parent_id = isset($options['parent']) ? intval($options['parent']) : 0; // Default to no parent if not set
+
     if (empty($input)) {
         add_settings_error(
             'dynamic_pages_creator_slugs',
@@ -164,6 +189,18 @@ function dynamic_pages_creator_create_pages($input) {
 
     return ''; // Clear the input field after processing
 }
+
+/**
+ * Validate the input for the slugs field
+ */
+function dynamic_pages_creator_options_validate($input) {
+    // Validate and sanitize each part of the input array
+    $new_input['parent'] = absint($input['parent']); // Ensure it's a non-negative integer
+    $new_input['slugs'] = sanitize_text_field($input['slugs']);
+
+    return $new_input;
+}
+
 
 // Add a Submenu for Viewing Slugs
 add_action('admin_menu', 'dynamic_pages_creator_add_view_slugs_submenu');
