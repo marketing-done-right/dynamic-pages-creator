@@ -206,6 +206,43 @@ function dynamic_pages_creator_create_pages($options) {
     return ''; // Clear the input field after processing
 }
 
+// Updating the list when a page is deleted
+add_action('before_delete_post', 'dynamic_pages_creator_remove_page_from_list');
+
+function dynamic_pages_creator_remove_page_from_list($post_id) {
+    // Check if the post is a page and if it's one of the pages created by the plugin
+    if (get_post_type($post_id) === 'page') {
+        $slug = get_post_field('post_name', $post_id);
+        $existing_pages = get_option('dynamic_pages_creator_existing_slugs', []);
+        if (isset($existing_pages[$slug])) {
+            unset($existing_pages[$slug]); // Remove the slug from the list
+            update_option('dynamic_pages_creator_existing_slugs', $existing_pages); // Update the option
+        }
+    }
+}
+
+// Updating the list when a page slug is edited
+add_action('save_post_page', 'dynamic_pages_creator_update_slug_in_list', 10, 3);
+
+function dynamic_pages_creator_update_slug_in_list($post_id, $post, $update) {
+    if (!$update) {
+        return; // If it's not an update, do nothing
+    }
+
+    $old_slug = get_post_meta($post_id, '_wp_old_slug', true);
+    $new_slug = $post->post_name;
+
+    if ($old_slug && $old_slug !== $new_slug) { // Check if the old slug exists and is different from the new slug
+        $existing_pages = get_option('dynamic_pages_creator_existing_slugs', []);
+        if (isset($existing_pages[$old_slug])) {
+            // Update the slug in the array
+            unset($existing_pages[$old_slug]); // Remove the old slug
+            $existing_pages[$new_slug] = ['date' => current_time('mysql')]; // Add the new slug with a new date
+            update_option('dynamic_pages_creator_existing_slugs', $existing_pages); // Update the option
+        }
+    }
+}
+
 // Add a Submenu for Viewing Slugs
 add_action('admin_menu', 'dynamic_pages_creator_add_view_slugs_submenu');
 function dynamic_pages_creator_add_view_slugs_submenu() {
