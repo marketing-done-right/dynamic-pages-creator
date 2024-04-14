@@ -124,6 +124,139 @@ function dynamic_pages_creator_parent_field_callback() {
     echo '</select>';
 }
 
+// Add a Submenu for SEO Settings
+function dynamic_pages_creator_add_seo_settings_menu() {
+    add_submenu_page(
+        'dynamic-pages-creator', // parent slug
+        'SEO Settings', // page title
+        'SEO Settings', // menu title
+        'manage_options', // capability
+        'dynamic-pages-creator-seo', // menu slug
+        'dynamic_pages_creator_seo_settings_page' // function that displays the settings page
+    );
+}
+add_action('admin_menu', 'dynamic_pages_creator_add_seo_settings_menu');
+
+// Function to render the SEO settings page
+function dynamic_pages_creator_seo_settings_page() {
+    ?>
+    <div class="wrap">
+        <h2>SEO Settings for Dynamic Pages</h2>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('dynamic_pages_creator_seo_settings');
+            do_settings_sections('dynamic_pages_creator_seo_settings');
+            submit_button();
+            ?>
+        </form>
+    </div>
+    <?php
+}
+
+// Register the settings for the SEO settings page
+function dynamic_pages_creator_register_seo_settings() {
+    register_setting('dynamic_pages_creator_seo_settings', 'seo_meta_title_template');
+    register_setting('dynamic_pages_creator_seo_settings', 'seo_meta_description_template');
+
+    add_settings_section(
+        'seo_settings_section', 
+        'SEO Meta Settings', 
+        'dynamic_pages_creator_seo_settings_section_callback', 
+        'dynamic_pages_creator_seo_settings'
+    );
+
+    add_settings_field(
+        'seo_meta_title_field', 
+        'SEO Meta Title Template', 
+        'dynamic_pages_creator_seo_meta_title_field_callback', 
+        'dynamic_pages_creator_seo_settings', 
+        'seo_settings_section'
+    );
+
+    add_settings_field(
+        'seo_meta_description_field', 
+        'SEO Meta Description Template', 
+        'dynamic_pages_creator_seo_meta_description_field_callback', 
+        'dynamic_pages_creator_seo_settings', 
+        'seo_settings_section'
+    );
+}
+add_action('admin_init', 'dynamic_pages_creator_register_seo_settings');
+
+// Callback function to output the section description
+function dynamic_pages_creator_seo_settings_section_callback() {
+    echo '<p>Enter the template for SEO meta tags. Use [title] as a placeholder to insert the page title.</p>';
+}
+
+function dynamic_pages_creator_seo_meta_title_field_callback() {
+    // Fetch the title template option and ensure it's treated as a string.
+    $title_template = get_option('seo_meta_title_template', '[title] | Your Site Name');
+    if (is_array($title_template)) {
+        $title_template = implode(" ", $title_template);
+    }
+    echo "<input type='text' id='seo_meta_title_template' name='seo_meta_title_template' value='" . esc_attr($title_template) . "' style='width: 100%;'>";
+}
+
+function dynamic_pages_creator_seo_meta_description_field_callback() {
+    // Fetch the description template option and ensure it's treated as a string.
+    $description_template = get_option('seo_meta_description_template', 'Learn more about [title] on our site.');
+    if (is_array($description_template)) {
+        $description_template = implode(" ", $description_template); // Example fallback, should be adjusted based on expected structure.
+    }
+    echo "<textarea id='seo_meta_description_template' name='seo_meta_description_template' rows='5' style='width: 100%;'>" . esc_textarea($description_template) . "</textarea>";
+}
+
+
+// Initialize SEO tags - This should be outside any specific function and called on every page load
+add_action('template_redirect', 'initialize_page_seo_tags');
+
+function initialize_page_seo_tags() {
+    if (defined('WPSEO_VERSION')) {
+        add_filter('wpseo_metadesc', 'dynamic_page_seo_meta_description');
+        add_filter('wpseo_title', 'dynamic_page_seo_title');
+    } else {
+        add_action('wp_head', 'fallback_page_seo_meta_tags');
+    }
+}
+
+function dynamic_page_seo_meta_description($description) {
+    if (is_singular('page')) {
+        $page_id = get_the_ID();
+        $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
+        if (isset($existing_pages_ids[$page_id])) {
+            $seo_template = get_option('seo_meta_description_template', 'Learn more about [title] on our site.');
+            return str_replace('[title]', get_the_title(), $seo_template);
+        }
+    }
+    return $description;
+}
+
+function dynamic_page_seo_title($title) {
+    if (is_singular('page')) {
+        $page_id = get_the_ID();
+        $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
+        if (isset($existing_pages_ids[$page_id])) {
+            $seo_template = get_option('seo_meta_title_template', '[title] | Your Site Name');
+            return str_replace('[title]', get_the_title(), $seo_template);
+        }
+    }
+    return $title;
+}
+
+function fallback_page_seo_meta_tags() {
+    if (is_singular('page')) {
+        $page_id = get_the_ID();
+        $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
+        if (isset($existing_pages_ids[$page_id])) {
+            $seo_title = str_replace('[title]', get_the_title(), get_option('seo_meta_title_template', '[title] | Your Site Name'));
+            echo '<title>' . esc_html($seo_title) . '</title>';
+            $seo_description = str_replace('[title]', get_the_title(), get_option('seo_meta_description_template', 'Learn more about [title] on our site.'));
+            echo '<meta name="description" content="' . esc_attr($seo_description) . '">';
+        }
+    }
+}
+
+
 /**
  * Create pages based on the titles provided in the input field
  */
