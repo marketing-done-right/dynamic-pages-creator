@@ -148,11 +148,24 @@ function dynamic_pages_creator_create_pages($options) {
     $timestamp = current_time('mysql');
 
     foreach ($titles_array as $title) {
+
+        $title = trim($title);
+        if (empty($title)) {
+            add_settings_error(
+                'dynamic_pages_creator_page_titles',
+                'dynamic_pages_creator_empty_title',
+                'Error: Empty titles are not allowed. Please enter valid titles to create pages.',
+                'error'
+            );
+            continue;
+        }
+        
         $slug = sanitize_title($title);
+        
         if (!get_page_by_path($slug, OBJECT, 'page') && !isset($existing_pages[$slug])) {
             $page_id = wp_insert_post([
-                'post_title' => trim($title),
-                'post_content' => 'This is the automatically generated page for ' . trim($title),
+                'post_title' => $title,
+                'post_content' => 'This is the automatically generated page for ' . $title,
                 'post_status' => 'publish',
                 'post_type' => 'page',
                 'post_name' => $slug,
@@ -160,13 +173,13 @@ function dynamic_pages_creator_create_pages($options) {
             ]);
 
             if (!is_wp_error($page_id)) {
-                $created_pages[] = trim($title);
+                $created_pages[] = $title;
                 $existing_pages[$slug] = ['date' => $timestamp];
             } else {
-                $errors[] = trim($title);
+                $errors[] = $title;
             }
         } else {
-            $errors[] = trim($title) . ' (already exists)';
+            $errors[] = $title . ' (already exists)';
         }
     }
 
