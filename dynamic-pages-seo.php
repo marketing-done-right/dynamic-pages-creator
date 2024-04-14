@@ -144,11 +144,10 @@ function dynamic_pages_creator_create_pages($options) {
     $titles_array = explode(',', $titles);
     $created_pages = [];
     $errors = [];
-    $existing_pages = get_option('dynamic_pages_creator_existing_slugs', []);
+    $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
     $timestamp = current_time('mysql');
 
     foreach ($titles_array as $title) {
-
         $title = trim($title);
         if (empty($title)) {
             add_settings_error(
@@ -159,10 +158,11 @@ function dynamic_pages_creator_create_pages($options) {
             );
             continue;
         }
-        
+
         $slug = sanitize_title($title);
-        
-        if (!get_page_by_path($slug, OBJECT, 'page') && !isset($existing_pages[$slug])) {
+        $page_exists = get_page_by_path($slug, OBJECT, 'page');
+
+        if (!$page_exists && !array_key_exists($slug, $existing_pages_ids)) {
             $page_id = wp_insert_post([
                 'post_title' => $title,
                 'post_content' => 'This is the automatically generated page for ' . $title,
@@ -174,7 +174,7 @@ function dynamic_pages_creator_create_pages($options) {
 
             if (!is_wp_error($page_id)) {
                 $created_pages[] = $title;
-                $existing_pages[$slug] = ['date' => $timestamp];
+                $existing_pages_ids[$page_id] = ['date' => $timestamp, 'title' => $title, 'slug' => $slug];
             } else {
                 $errors[] = $title;
             }
@@ -183,7 +183,7 @@ function dynamic_pages_creator_create_pages($options) {
         }
     }
 
-    update_option('dynamic_pages_creator_existing_slugs', $existing_pages);
+    update_option('dynamic_pages_creator_existing_pages_ids', $existing_pages_ids);
 
     if (!empty($created_pages)) {
         add_settings_error(
@@ -206,80 +206,56 @@ function dynamic_pages_creator_create_pages($options) {
     return ''; // Clear the input field after processing
 }
 
-// Updating the list when a page is deleted
-add_action('before_delete_post', 'dynamic_pages_creator_remove_page_from_list');
-
-function dynamic_pages_creator_remove_page_from_list($post_id) {
-    // Check if the post is a page and if it's one of the pages created by the plugin
-    if (get_post_type($post_id) === 'page') {
-        $slug = get_post_field('post_name', $post_id);
-        $existing_pages = get_option('dynamic_pages_creator_existing_slugs', []);
-        if (isset($existing_pages[$slug])) {
-            unset($existing_pages[$slug]); // Remove the slug from the list
-            update_option('dynamic_pages_creator_existing_slugs', $existing_pages); // Update the option
-        }
+// Hook to delete pages from the list when they are deleted
+add_action('before_delete_post', 'dynamic_pages_creator_handle_delete'); 
+// Function to handle the deletion of pages
+function dynamic_pages_creator_handle_delete($post_id) {
+    $created_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
+    if (array_key_exists($post_id, $created_pages_ids)) {
+        unset($created_pages_ids[$post_id]);
+        update_option('dynamic_pages_creator_existing_pages_ids', $created_pages_ids);
     }
 }
 
-// Updating the list when a page slug is edited
-add_action('save_post_page', 'dynamic_pages_creator_update_slug_in_list', 10, 3);
-
-function dynamic_pages_creator_update_slug_in_list($post_id, $post, $update) {
-    if (!$update) {
-        return; // If it's not an update, do nothing
-    }
-
-    $old_slug = get_post_meta($post_id, '_wp_old_slug', true);
-    $new_slug = $post->post_name;
-
-    if ($old_slug && $old_slug !== $new_slug) { // Check if the old slug exists and is different from the new slug
-        $existing_pages = get_option('dynamic_pages_creator_existing_slugs', []);
-        if (isset($existing_pages[$old_slug])) {
-            // Update the slug in the array
-            unset($existing_pages[$old_slug]); // Remove the old slug
-            $existing_pages[$new_slug] = ['date' => current_time('mysql')]; // Add the new slug with a new date
-            update_option('dynamic_pages_creator_existing_slugs', $existing_pages); // Update the option
-        }
-    }
-}
-
-// Add a Submenu for Viewing Slugs
-add_action('admin_menu', 'dynamic_pages_creator_add_view_slugs_submenu');
-function dynamic_pages_creator_add_view_slugs_submenu() {
+// Add a Submenu for Viewing Created Pages
+add_action('admin_menu', 'dynamic_pages_creator_add_view_pages_submenu');
+function dynamic_pages_creator_add_view_pages_submenu() {
     add_submenu_page(
         'dynamic-pages-creator',  // parent_slug
-        'View Created Slugs',     // page_title
-        'View Created Slugs',     // menu_title
+        'View Created Pages',     // page_title
+        'View Created Pages',     // menu_title
         'manage_options',         // capability
-        'dynamic-pages-view-slugs', // menu_slug
-        'dynamic_pages_creator_view_slugs_page' // function that will render the page
+        'dynamic-pages-view-pages', // menu_slug
+        'dynamic_pages_creator_view_pages_page' // function that will render the page
     );
 }
 
 /**
- * Render the slugs page for viewing created slugs
+ * Render the page for viewing created pages
  */
-function dynamic_pages_creator_view_slugs_page() {
-    $existing_slugs = get_option('dynamic_pages_creator_existing_slugs', []);
+function dynamic_pages_creator_view_pages_page() {
+    $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
     ?>
     <div class="wrap">
-        <h1>Created Pages Slugs</h1>
+        <h1>Created Pages</h1>
         <table class="widefat">
             <thead>
                 <tr>
+                    <th>Page Title</th>
                     <th>Slug</th>
                     <th>Date Created</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if (empty($existing_slugs)): ?>
+                <?php if (empty($existing_pages_ids)): ?>
                     <tr>
-                        <td colspan="2">No slugs have been created yet.</td>
+                        <td colspan="3">No pages have been created yet.</td>
                     </tr>
                 <?php else: ?>
-                    <?php foreach ($existing_slugs as $slug => $info): ?>
+                    <?php foreach ($existing_pages_ids as $id => $info): ?>
                         <tr>
-                            <td><?php echo esc_html($slug); ?></td>
+                            <td><?php echo esc_html(get_the_title($id)); ?></td>
+                            <td><?php echo esc_html(get_post_field('post_name', $id)); ?></td>
                             <td><?php echo esc_html($info['date']); ?></td>
                         </tr>
                     <?php endforeach; ?>
