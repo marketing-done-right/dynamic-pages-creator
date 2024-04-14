@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Dynamic Pages Creator with SEO
- * Description: Automatically generates web pages based on predefined URL slugs and dynamically assigns SEO meta tags to each page, tailored to its slug, to improve search engine visibility.
+ * Description: Automatically generates web pages based on predefined page ttiles and dynamically assigns SEO meta tags to each page, tailored to its slug, to improve search engine visibility.
  * Version: 1.0
  * Author: Hans Steffens & Marketing Done Right LLC
  * Author URI: https://marketingdr.co
@@ -77,7 +77,7 @@ function dynamic_pages_creator_settings_init() {
     add_settings_field(
         'dynamic_pages_creator_slug_field', 
         'Page Slugs (comma-separated)', 
-        'dynamic_pages_creator_slug_field_callback', 
+        'dynamic_pages_creator_title_field_callback', 
         'dynamic-pages-creator', 
         'dynamic_pages_creator_main'
     );
@@ -93,28 +93,32 @@ function dynamic_pages_creator_settings_init() {
 
 
 /**
- * Validate the input for the slugs field
+ * Validate the input for the titles field
  */
 function dynamic_pages_creator_options_validate($input) {
-    error_log('Validating input: ' . print_r($input, true));  // This should log the input being validated
     $new_input = array();
-    $new_input['parent'] = absint($input['parent']);
-    $new_input['slugs'] = sanitize_text_field($input['slugs']);
+    $new_input['parent'] = absint($input['parent']);  // Ensure parent ID is an integer
+    $titles = isset($input['page_titles']) ? $input['page_titles'] : '';
+    $new_input['page_titles'] = sanitize_text_field($titles);  // Sanitize the entire string of titles
+    
+    error_log('Validating input: ' . print_r($new_input, true));
+
     return $new_input;
 }
+
 
 /**
  * Output the settings section description
  */
 function dynamic_pages_creator_settings_section_callback() {
-    echo 'Enter the slugs for the pages you wish to create, separated by commas.';
+    echo 'Enter the titles for the pages you wish to create, separated by commas.';
 }
 
 /**
- * Output the input field for the slugs
+ * Output the input field for the titles
  */
-function dynamic_pages_creator_slug_field_callback() {
-    echo "<input type='text' id='dynamic_pages_creator_slug_field' name='dynamic_pages_creator_options[slugs]' value='' placeholder='Enter slugs separated by commas' style='width: 100%;'>";
+function dynamic_pages_creator_title_field_callback() {
+    echo "<input type='text' id='dynamic_pages_creator_title_field' name='dynamic_pages_creator_options[page_titles]' value='' placeholder='Enter page titles separated by commas, e.g., San Antonio, New York' style='width: 100%;'>";
 }
 
 /**
@@ -132,29 +136,29 @@ function dynamic_pages_creator_parent_field_callback() {
 }
 
 /**
- * Create pages based on the slugs provided in the input field
+ * Create pages based on the titles provided in the input field
  * 
  * @param string $input The input from the settings field
  * @return string The input field value
  */
 
-function dynamic_pages_creator_create_pages($options) {
-    $input = isset($options['slugs']) ? $options['slugs'] : '';
+ function dynamic_pages_creator_create_pages($options) {
+    $input = isset($options['page_titles']) ? $options['page_titles'] : '';
     $parent_id = isset($options['parent']) ? intval($options['parent']) : 0; // Default to no parent if not set
 
     if (empty($input)) {
         add_settings_error(
-            'dynamic_pages_creator_slugs',
-            'dynamic_pages_creator_slugs_error',
-            'Error: No slugs provided. Please enter some slugs to create pages.',
+            'dynamic_pages_creator_page_titles',
+            'dynamic_pages_creator_page_titles_error',
+            'Error: No page titles provided. Please enter some page titles to create pages.',
             'error'
         );
-        return $input;
+        return '';
     }
 
-    // Sanitize and split input
-    $raw_slugs = explode(',', sanitize_text_field($input));
-    $slugs = array_map('sanitize_title', $raw_slugs); // Sanitize each slug to ensure it's in a valid format
+    // Sanitize and split input, then convert each title to a slug
+    $titles = explode(',', sanitize_text_field($input));
+    $slugs = array_map('sanitize_title', $titles);
 
     $created_pages = [];
     $errors = [];
@@ -162,52 +166,52 @@ function dynamic_pages_creator_create_pages($options) {
     $timestamp = current_time('mysql');
 
     foreach ($slugs as $index => $slug) {
-        // Skip empty slugs
         if (empty($slug)) {
-            $errors[] = $raw_slugs[$index] . ' (invalid slug)';
+            $errors[] = $titles[$index] . ' (invalid title)';
             continue;
         }
-        
+
         // Check if the page already exists
-        if (!get_page_by_path($slug, OBJECT, 'page') && !in_array($slug, $existing_pages)) {
+        if (!get_page_by_path($slug, OBJECT, 'page') && !isset($existing_pages[$slug])) {
             $page_id = wp_insert_post([
-                'post_title'  => ucwords(str_replace('-', ' ', $slug)),
-                'post_content' => 'This is the automatically generated page for ' . $slug,
+                'post_title'  => ucwords(str_replace('-', ' ', $titles[$index])),
+                'post_content' => 'This is the automatically generated page for ' . $titles[$index],
                 'post_status' => 'publish',
                 'post_type'   => 'page',
                 'post_name'   => $slug,
-                'post_parent' => $parent_id  // Set the parent page ID
+                'post_parent' => $parent_id
             ]);
 
             if (!is_wp_error($page_id)) {
-                $created_pages[] = $slug;
-                $existing_pages[$slug] = ['date' => $timestamp]; // Add slug to existing pages list and store the creation date.
+                $created_pages[] = $titles[$index];
+                $existing_pages[$slug] = ['date' => $timestamp];
             } else {
-                $errors[] = $slug;
+                $errors[] = $titles[$index];
             }
         } else {
-            $errors[] = $slug . ' (already exists)';
+            $errors[] = $titles[$index] . ' (already exists)';
         }
     }
-    
+
     // Update the list of existing pages
     update_option('dynamic_pages_creator_existing_slugs', $existing_pages);
 
     // Display a success message if pages were created
     if (!empty($created_pages)) {
         add_settings_error(
-            'dynamic_pages_creator_slugs',
-            'dynamic_pages_creator_slugs_success',
-            'Successfully created pages for the following slugs: ' . implode(', ', $created_pages),
+            'dynamic_pages_creator_page_titles',
+            'dynamic_pages_creator_page_titles_success',
+            'Successfully created pages for the following titles: ' . implode(', ', $created_pages),
             'updated'
         );
     }
+
     // Display an error message if pages failed to create
     if (!empty($errors)) {
         add_settings_error(
-            'dynamic_pages_creator_slugs',
-            'dynamic_pages_creator_slugs_error',
-            'Failed to create pages for the following slugs: ' . implode(', ', $errors),
+            'dynamic_pages_creator_page_titles',
+            'dynamic_pages_creator_page_titles_error',
+            'Failed to create pages for the following titles: ' . implode(', ', $errors),
             'error'
         );
     }
