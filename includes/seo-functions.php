@@ -7,10 +7,10 @@ class DPC_SEO_Functions {
     public function initialize_seo_tags() {
         // initialize SEO tags for pages
         if (defined('WPSEO_VERSION')) {
-            add_filter('wpseo_metadesc', 'dynamic_page_seo_meta_description');
-            add_filter('wpseo_title', 'dynamic_page_seo_title');
+            add_filter('wpseo_metadesc', [$this, 'seo_meta_description']);
+            add_filter('wpseo_title', [$this, 'seo_meta_title']);
         } else {
-            add_action('wp_head', 'fallback_page_seo_meta_tags');
+            add_action('wp_head', [$this, 'fallback_seo_meta_tags']);
         }
     }
 
