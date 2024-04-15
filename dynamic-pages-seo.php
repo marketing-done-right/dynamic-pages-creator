@@ -142,6 +142,7 @@ function dynamic_pages_creator_seo_settings_page() {
     ?>
     <div class="wrap">
         <h2>SEO Settings for Dynamic Pages</h2>
+        <?php settings_errors(); ?>
         <form method="post" action="options.php">
             <?php
             settings_fields('dynamic_pages_creator_seo_settings');
@@ -180,6 +181,15 @@ function dynamic_pages_creator_register_seo_settings() {
         'dynamic_pages_creator_seo_settings', 
         'seo_settings_section'
     );
+    // Check if the settings were saved and add an updated message
+    if (isset($_GET['settings-updated']) && $_GET['settings-updated']) {
+        add_settings_error(
+            'dynamic_pages_creator_seo_settings',
+            'seo_settings_updated',
+            'SEO settings updated successfully.',
+            'updated'
+        );
+    }
 }
 add_action('admin_init', 'dynamic_pages_creator_register_seo_settings');
 
