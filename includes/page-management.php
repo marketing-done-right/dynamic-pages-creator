@@ -112,9 +112,7 @@ class DPC_Page_Management {
         // Store this flag in an option to use it later when enqueuing scripts
         update_option('dpc_should_clear_fields', $shouldClearFields);
 
-        // Redirect after processing to clear form fields on reload
-        wp_redirect(menu_page_url('dynamic-pages-creator', false));
-        exit; 
+        return ''; // Clear the input field after processing
     }
 
     public function handle_page_deletion($post_id) {
