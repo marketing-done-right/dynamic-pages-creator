@@ -32,7 +32,7 @@ class DPC_Page_Management {
 
         if (empty($titles)) {
             add_settings_error(
-                'dynamic_pages_creator_page_titles',
+                'dynamic_pages_creator_options',
                 'dynamic_pages_creator_page_titles_error',
                 'Error: No page titles provided. Please enter some page titles to create pages.',
                 'error'
@@ -50,7 +50,7 @@ class DPC_Page_Management {
             $title = trim($title);
             if (empty($title)) {
                 add_settings_error(
-                    'dynamic_pages_creator_page_titles',
+                    'dynamic_pages_creator_options',
                     'dynamic_pages_creator_empty_title',
                     'Error: Empty titles are not allowed. Please enter valid titles to create pages.',
                     'error'
@@ -84,7 +84,7 @@ class DPC_Page_Management {
 
         if (!empty($created_pages)) {
             add_settings_error(
-                'dynamic_pages_creator_page_titles',
+                'dynamic_pages_creator_options',
                 'dynamic_pages_creator_page_titles_success',
                 'Successfully created pages for the following titles: ' . implode(', ', $created_pages),
                 'updated'
@@ -93,7 +93,7 @@ class DPC_Page_Management {
 
         if (!empty($errors)) {
             add_settings_error(
-                'dynamic_pages_creator_page_titles',
+                'dynamic_pages_creator_options',
                 'dynamic_pages_creator_page_titles_error',
                 'Failed to create pages for the following titles: ' . implode(', ', $errors),
                 'error'
