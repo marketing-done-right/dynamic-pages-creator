@@ -99,7 +99,7 @@ class DPC_Admin_Menus {
         $options = get_option('dynamic_pages_creator_options');
         $pages = get_pages();
         echo '<select id="dynamic_pages_creator_parent_field" name="dynamic_pages_creator_options[parent]">';
-        echo '<option value="0">No parent</option>';
+        echo '<option value="0">Main Page (no parent)</option>';
         foreach ($pages as $page) {
             $selected = ($options['parent'] == $page->ID) ? 'selected' : '';
             echo '<option value="' . esc_attr($page->ID) . '" ' . $selected . '>' . esc_html($page->post_title) . '</option>';
