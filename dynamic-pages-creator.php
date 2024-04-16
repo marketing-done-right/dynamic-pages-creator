@@ -24,6 +24,7 @@ function dpc_init()
     new DPC_Admin_Menus();
     new DPC_Page_Management();
     new DPC_SEO_Functions();
+    new DPC_Utilities();
 }
 
 add_action('plugins_loaded', 'dpc_init');

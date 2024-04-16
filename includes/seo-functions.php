@@ -1,4 +1,14 @@
 <?php
+
+// Ensures that the file is not accessed directly.
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Handles SEO related functionality for the Dynamic Pages Creator plugin.
+ */
+
 class DPC_SEO_Functions {
     public function __construct() {
         add_action('template_redirect', [$this, 'initialize_seo_tags']);
@@ -9,6 +19,10 @@ class DPC_SEO_Functions {
         if (defined('WPSEO_VERSION')) {
             add_filter('wpseo_metadesc', [$this, 'seo_meta_description']);
             add_filter('wpseo_title', [$this, 'seo_meta_title']);
+            add_filter('wpseo_opengraph_title', [$this, 'seo_meta_title']);
+            add_filter('wpseo_opengraph_desc', [$this, 'seo_meta_description']);
+            add_filter('wpseo_twitter_title', [$this, 'seo_meta_title']);
+            add_filter('wpseo_twitter_description', [$this, 'seo_meta_description']);
         } else {
             add_action('wp_head', [$this, 'fallback_seo_meta_tags']);
         }

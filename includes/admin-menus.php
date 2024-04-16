@@ -1,4 +1,10 @@
 <?php
+
+ // Ensures that the file is not accessed directly.
+ if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Handles all admin menu related functionality for the Dynamic Pages Creator plugin.
  */
