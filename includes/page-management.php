@@ -13,6 +13,7 @@ class DPC_Page_Management {
     public function __construct() {
         add_action('admin_init', array($this, 'check_page_submission'));
         add_action('before_delete_post', array($this, 'handle_page_deletion'));
+        add_action('admin_notices', array($this, 'display_settings_errors'));
     }
 
     public function check_page_submission() {
@@ -88,22 +89,13 @@ class DPC_Page_Management {
 
         update_option('dynamic_pages_creator_existing_pages_ids', $existing_pages_ids);
 
+        // Store success and error messages in transients
         if (!empty($created_pages)) {
-            add_settings_error(
-                'dynamic_pages_creator_options',
-                'dynamic_pages_creator_page_titles_success',
-                'Successfully created pages for the following titles: ' . implode(', ', $created_pages),
-                'updated'
-            );
+            set_transient('dpc_page_creation_success', 'Successfully created pages for the following titles: ' . implode(', ', $created_pages), 30);
         }
 
         if (!empty($errors)) {
-            add_settings_error(
-                'dynamic_pages_creator_options',
-                'dynamic_pages_creator_page_titles_error',
-                'Failed to create pages for the following titles: ' . implode(', ', $errors),
-                'error'
-            );
+            set_transient('dpc_page_creation_errors', $errors, 30);
         }
 
         // Assuming pages were created, set a flag
@@ -111,8 +103,26 @@ class DPC_Page_Management {
 
         // Store this flag in an option to use it later when enqueuing scripts
         update_option('dpc_should_clear_fields', $shouldClearFields);
+    
+        if (!empty($created_pages) || !empty($errors)) {
+            // Redirect to avoid form resubmission issues
+            wp_redirect(menu_page_url('dynamic-pages-creator', false));
+            exit;
+        }
+    }
 
-        return ''; // Clear the input field after processing
+    // Function to display settings errors after redirect
+    public function display_settings_errors() {
+        if ($message = get_transient('dpc_page_creation_success')) {
+            add_settings_error('dynamic_pages_creator_options', 'dynamic_pages_creator_page_titles_success', $message, 'updated');
+            delete_transient('dpc_page_creation_success');
+        }
+        if ($errors = get_transient('dpc_page_creation_errors')) {
+            foreach ($errors as $error) {
+                add_settings_error('dynamic_pages_creator_options', 'dynamic_pages_creator_page_titles_error', $error, 'error');
+            }
+            delete_transient('dpc_page_creation_errors');
+        }
     }
 
     public function handle_page_deletion($post_id) {

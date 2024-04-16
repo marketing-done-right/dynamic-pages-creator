@@ -113,8 +113,14 @@ class DPC_Admin_Menus {
     }
     
     public function title_field_callback() {
+        $shouldClearFields = get_transient('dpc_clear_fields');
         $options = get_option('dynamic_pages_creator_options');
-        echo "<input type='text' id='dynamic_pages_creator_title_field' name='dynamic_pages_creator_options[page_titles]' value='" . esc_attr($options['page_titles'] ?? '') . "' style='width: 100%;'>";
+        $value = $shouldClearFields ? '' : esc_attr($options['page_titles'] ?? '');
+        echo "<input type='text' id='dynamic_pages_creator_title_field' name='dynamic_pages_creator_options[page_titles]' value='" . $value . "' style='width: 100%;' autocomplete='off'>";
+
+        // Delete the transient so it does not affect future loads
+        delete_transient('dpc_clear_fields');
+
     }
 
     public function parent_field_callback() {
