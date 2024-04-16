@@ -19,12 +19,22 @@ class DPC_Admin_Menus {
     public function add_menus() {
         add_menu_page(
             'Dynamic Pages Creator', // Page title
-            'Create Pages', // Menu title
+            'Dynamic Pages Creator', // Menu title
             'manage_options', // Capability
             'dynamic-pages-creator', // Menu slug
             array($this, 'render_main_page'), // Function callback
-            'dashicons-admin-generic', // Icon
+            'dashicons-welcome-add-page', // Icon
             20 // Position
+        );
+
+        // Add the first submenu page, which is usually the same as the main menu page but with a different title
+        add_submenu_page(
+            'dynamic-pages-creator', // Parent slug
+            'Create Pages', // Page title
+            'Create Pages', // Menu title
+            'manage_options', // Capability
+            'dynamic-pages-creator', // Menu slug, same as the main menu slug
+            array($this, 'render_main_page') // Function callback, same as the main menu callback
         );
 
         add_submenu_page(
