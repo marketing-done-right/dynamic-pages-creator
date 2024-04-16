@@ -19,7 +19,7 @@ class DPC_Admin_Menus {
     public function add_menus() {
         add_menu_page(
             'Dynamic Pages Creator', // Page title
-            'Dynamic Pages Creator', // Menu title
+            'Create Pages', // Menu title
             'manage_options', // Capability
             'dynamic-pages-creator', // Menu slug
             array($this, 'render_main_page'), // Function callback
@@ -77,9 +77,15 @@ class DPC_Admin_Menus {
     public function enqueue_scripts_and_styles() {
         wp_enqueue_script('dpc-admin-js', plugins_url('js/admin-scripts.js', __FILE__), array('jquery'), null, true);
         $shouldClearFields = get_option('dpc_should_clear_fields', false);
+        // Pass the flag to JavaScript
         wp_localize_script('dpc-admin-js', 'dpcData', array(
             'clearFields' => $shouldClearFields ? 'true' : 'false'
         ));
+
+        // Reset the flag after passing it to JavaScript
+        if ($shouldClearFields) {
+            update_option('dpc_should_clear_fields', false);
+        }
     
         wp_enqueue_style('dpc-admin-css', plugins_url('css/admin-style.css', __FILE__));
     }
