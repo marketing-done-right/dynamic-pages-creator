@@ -70,6 +70,7 @@ class DPC_Admin_Menus {
         add_settings_section('seo_settings_section', 'SEO Meta Settings', array($this, 'seo_settings_section_callback'), 'dynamic_pages_creator_seo_settings');
         add_settings_field('seo_meta_title_field', 'SEO Meta Title Template', array($this, 'seo_meta_title_field_callback'), 'dynamic_pages_creator_seo_settings', 'seo_settings_section');
         add_settings_field('seo_meta_description_field', 'SEO Meta Description Template', array($this, 'seo_meta_description_field_callback'), 'dynamic_pages_creator_seo_settings', 'seo_settings_section');
+        add_settings_field('dynamic_pages_creator_draft_page_field', 'Draft Page Template', array($this, 'dynamic_pages_creator_draft_page_field_callback'), 'dynamic-pages-creator', 'dynamic_pages_creator_main');
 
         // Check if the settings were saved and add an updated message
         if (isset($_GET['settings-updated']) && $_GET['settings-updated']) {
@@ -102,8 +103,10 @@ class DPC_Admin_Menus {
 
     // Validation functions for settings fields
     public function validate_options($inputs) {
+        $new_input = [];
         $inputs['page_titles'] = sanitize_text_field($inputs['page_titles']);
         $inputs['parent'] = absint($inputs['parent']);
+        $new_input['page_template'] = absint($inputs['page_template']);
         return $inputs;
     }
 
@@ -148,6 +151,24 @@ class DPC_Admin_Menus {
         $description_template = get_option('seo_meta_description_template', 'Learn more about [title] on our site.');
         echo "<textarea id='seo_meta_description_template' name='seo_meta_description_template' rows='5' style='width: 100%;'>" . esc_textarea($description_template) . "</textarea>";
     }
+
+    public function dynamic_pages_creator_draft_page_field_callback() {
+        $args = array(
+            'post_type'      => 'page',
+            'post_status'    => 'draft',
+            'posts_per_page' => -1
+        );
+        $draft_pages = get_posts($args);
+        $selected_template = get_option('dynamic_pages_creator_page_template');
+    
+        echo '<select id="dynamic_pages_creator_template_field" name="dynamic_pages_creator_options[page_template]">';
+        echo '<option value="">Select a Draft Page</option>';
+        foreach ($draft_pages as $page) {
+            $selected = selected($selected_template, $page->ID, false);
+            echo '<option value="' . esc_attr($page->ID) . '"' . $selected . '>' . esc_html($page->post_title) . '</option>';
+        }
+        echo '</select>';
+    }    
 
     // Render functions for settings fields
 

@@ -19,7 +19,7 @@
              <?php else: ?>
                  <?php foreach ($existing_pages_ids as $id => $info): ?>
                      <tr>
-                         <td><?php echo esc_html(get_the_title($id)); ?></td>
+                         <td><a href="<?php echo esc_url(get_edit_post_link($id)); ?>"><?php echo esc_html(get_the_title($id)); ?></a></td>
                          <td><?php echo esc_html(get_post_field('post_name', $id)); ?></td>
                          <td><?php echo esc_html($info['date']); ?></td>
                      </tr>

@@ -36,6 +36,14 @@ class DPC_Page_Management {
     public function create_pages($options) {
         $titles = isset($options['page_titles']) ? $options['page_titles'] : '';
         $parent_id = isset($options['parent']) ? intval($options['parent']) : 0;
+        $template_id = isset($options['page_template']) ? $options['page_template'] : '';
+        $template_post = get_post($template_id);
+
+        if ($template_post && $template_post->post_status === 'draft') {
+            $template_content = $template_post->post_content;
+        } else {
+            $template_content = 'This is an automatically generated page using the default page template.';
+        }
 
         if (empty($titles)) {
             add_settings_error(
@@ -69,7 +77,7 @@ class DPC_Page_Management {
             if (!get_page_by_path($slug, OBJECT, 'page') && !array_key_exists($slug, $existing_pages_ids)) {
                 $page_id = wp_insert_post([
                     'post_title'    => $title,
-                    'post_content'  => 'This is an automatically generated page for ' . $title,
+                    'post_content'  => $template_content,
                     'post_status'   => 'publish',
                     'post_type'     => 'page',
                     'post_name'     => $slug,
