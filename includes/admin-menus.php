@@ -60,7 +60,7 @@ class DPC_Admin_Menus {
         register_setting('dynamic_pages_creator_options', 'dynamic_pages_creator_options', array($this, 'validate_options'));
         add_settings_section('dynamic_pages_creator_main', 'Settings', array($this, 'main_settings_section_callback'), 'dynamic-pages-creator');
         
-        add_settings_field('dynamic_pages_creator_title_field', 'Page Titles (comma-separated)', array($this, 'title_field_callback'), 'dynamic-pages-creator', 'dynamic_pages_creator_main');
+        add_settings_field('dynamic_pages_creator_keyword_field', 'Page Keywords (comma-separated)', array($this, 'keyword_field_callback'), 'dynamic-pages-creator', 'dynamic_pages_creator_main');
         add_settings_field('dynamic_pages_creator_parent_field', 'Parent Page', array($this, 'parent_field_callback'), 'dynamic-pages-creator', 'dynamic_pages_creator_main');
     
         // SEO Settings
@@ -104,7 +104,7 @@ class DPC_Admin_Menus {
     // Validation functions for settings fields
     public function validate_options($inputs) {
         $new_input = [];
-        $inputs['page_titles'] = sanitize_text_field($inputs['page_titles']);
+        $inputs['page_keywords'] = sanitize_text_field($inputs['page_keywords']);
         $inputs['parent'] = absint($inputs['parent']);
         $new_input['page_template'] = absint($inputs['page_template']);
         return $inputs;
@@ -112,14 +112,14 @@ class DPC_Admin_Menus {
 
     // Callback functions for settings fields
     public function main_settings_section_callback() {
-        echo 'Enter the titles for the pages you wish to create, separated by commas. For example, "Home, About Us, Contact".';
+        echo 'Enter the keywords for the pages you wish to create, separated by commas. For example, "Chicago, New York, Cleveland".';
     }
     
-    public function title_field_callback() {
+    public function keyword_field_callback() {
         $shouldClearFields = get_transient('dpc_clear_fields');
         $options = get_option('dynamic_pages_creator_options');
-        $value = $shouldClearFields ? '' : esc_attr($options['page_titles'] ?? '');
-        echo "<input type='text' id='dynamic_pages_creator_title_field' name='dynamic_pages_creator_options[page_titles]' value='" . $value . "' style='width: 100%;' autocomplete='off'>";
+        $value = $shouldClearFields ? '' : esc_attr($options['page_keywords'] ?? '');
+        echo "<input type='text' id='dynamic_pages_creator_keyword_field' name='dynamic_pages_creator_options[page_keywords]' value='" . $value . "' style='width: 100%;' autocomplete='off'>";
 
         // Delete the transient so it does not affect future loads
         delete_transient('dpc_clear_fields');
@@ -139,16 +139,16 @@ class DPC_Admin_Menus {
     }
 
     public function seo_settings_section_callback() {
-        echo '<p>Enter the template for SEO meta tags. Use [title] as a placeholder to insert the page title.</p>';
+        echo '<p>Enter the template for SEO meta tags. Use [keyword] as a placeholder to insert the page keyword.</p>';
     }
     
     public function seo_meta_title_field_callback() {
-        $title_template = get_option('seo_meta_title_template', '[title] | Your Site Name');
+        $title_template = get_option('seo_meta_title_template', '[keyword] | Your Site Name');
         echo "<input type='text' id='seo_meta_title_template' name='seo_meta_title_template' value='" . esc_attr($title_template) . "' style='width: 100%;'>";
     }
     
     public function seo_meta_description_field_callback() {
-        $description_template = get_option('seo_meta_description_template', 'Learn more about [title] on our site.');
+        $description_template = get_option('seo_meta_description_template', 'Learn more about [keyword] on our site.');
         echo "<textarea id='seo_meta_description_template' name='seo_meta_description_template' rows='5' style='width: 100%;'>" . esc_textarea($description_template) . "</textarea>";
     }
 

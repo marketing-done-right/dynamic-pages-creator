@@ -1,6 +1,6 @@
 # Dynamic Pages Creator with SEO
 
-Dynamic Pages Creator with SEO is a WordPress plugin that automates the creation of web pages based on predefined titles and dynamically assigns SEO meta tags to enhance search engine visibility.
+Dynamic Pages Creator with SEO is a WordPress plugin that automates the creation of web pages based on predefined keywords and dynamically assigns SEO meta tags to enhance search engine visibility.
 
 ## Authors
 
@@ -9,13 +9,13 @@ Dynamic Pages Creator with SEO is a WordPress plugin that automates the creation
 
 ## Description
 
-This plugin simplifies the management of content creation and SEO optimization by automatically generating pages with specified titles and SEO tags, making it ideal for marketing campaigns, SEO strategies, and content management.
+This plugin simplifies the management of content creation and SEO optimization by automatically generating pages with specified keywords and SEO tags, making it ideal for marketing campaigns, SEO strategies, and content management.
 
 ## Key Features
 
-- **Automatic Page Creation**: Generate pages from a list of titles provided through the plugin's settings page.
-- **SEO Enhancement**: Automatically apply SEO meta tags based on the page titles.
-- **Shortcode Support**: Use the `[title default="text"]` shortcode to insert titles dynamically in page content.
+- **Automatic Page Creation**: Generate pages from a list of keywords provided through the plugin's settings page.
+- **SEO Enhancement**: Automatically apply SEO meta tags based on the page keywords.
+- **Shortcode Support**: Use the `[keyword default="text"]` shortcode to insert keywords dynamically in page content.
 - **Yoast SEO Compatibility**: Works seamlessly with Yoast SEO to enhance your site's SEO capabilities. [^1]
 
 ## Security Practices
@@ -35,15 +35,15 @@ Our plugin adheres to the best security practices, including:
 ## Usage
 
 ### Creating Pages
-Navigate to the 'Dynamic Pages Creator' menu in the admin dashboard to create new pages by entering titles and specifying SEO settings.
+Navigate to the 'Dynamic Pages Creator' menu in the admin dashboard to create new pages by entering keywords and specifying SEO settings.
 
 ### Using the Shortcode
-You can dynamically insert page titles into your content using:
+You can dynamically insert page keywords into your content using:
 ```plaintext
-[title default="Default Title"]
+[keyword default="Default Keyword"]
 ```
 
-If the page was not created via the plugin, "Default Title" will be displayed.
+If the page was not created via the plugin, "Default Keyword" will be displayed.
 
 ## Contributing
 

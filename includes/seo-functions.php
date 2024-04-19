@@ -33,23 +33,23 @@ class DPC_SEO_Functions {
             $page_id = get_the_ID();
             $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
             if (isset($existing_pages_ids[$page_id])) {
-                $seo_template = get_option('seo_meta_description_template', 'Learn more about [title] on our site.');
-                return str_replace('[title]', get_the_title(), $seo_template);
+                $seo_template = get_option('seo_meta_description_template', 'Learn more about [keyword] on our site.');
+                return str_replace('[keyword]', get_the_title(), $seo_template);
             }
         }
         return $description;
     }
 
-    public function seo_meta_title($title) {
+    public function seo_meta_title($keyword) {
         if (is_singular('page')) {
             $page_id = get_the_ID();
             $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
             if (isset($existing_pages_ids[$page_id])) {
-                $seo_template = get_option('seo_meta_title_template', '[title] | Your Site Name');
-                return str_replace('[title]', get_the_title(), $seo_template);
+                $seo_template = get_option('seo_meta_title_template', '[keyword] | Your Site Name');
+                return str_replace('[keyword]', get_the_title(), $seo_template);
             }
         }
-        return $title;
+        return $keyword;
     }
 
     public function fallback_seo_meta_tags() {
@@ -57,9 +57,9 @@ class DPC_SEO_Functions {
             $page_id = get_the_ID();
             $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
             if (isset($existing_pages_ids[$page_id])) {
-                $seo_title = str_replace('[title]', get_the_title(), get_option('seo_meta_title_template', '[title] | Your Site Name'));
+                $seo_title = str_replace('[keyword]', get_the_title(), get_option('seo_meta_title_template', '[keyword] | Your Site Name'));
                 echo '<title>' . esc_html($seo_title) . '</title>';
-                $seo_description = str_replace('[title]', get_the_title(), get_option('seo_meta_description_template', 'Learn more about [title] on our site.'));
+                $seo_description = str_replace('[keyword]', get_the_title(), get_option('seo_meta_description_template', 'Learn more about [keyword] on our site.'));
                 echo '<meta name="description" content="' . esc_attr($seo_description) . '">';
             }
         }

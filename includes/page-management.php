@@ -34,39 +34,39 @@ class DPC_Page_Management {
     
 
     public function create_pages($options) {
-        $titles = isset($options['page_titles']) ? $options['page_titles'] : '';
+        $keywords = isset($options['page_keywords']) ? $options['page_keywords'] : '';
         $parent_id = isset($options['parent']) ? intval($options['parent']) : 0;
         $template_id = isset($options['page_template']) ? intval($options['page_template']) : 0;
     
-        if (empty($titles)) {
+        if (empty($keywords)) {
             add_settings_error(
                 'dynamic_pages_creator_options',
-                'dynamic_pages_creator_page_titles_error',
-                'Error: No page titles provided. Please enter some page titles to create pages.',
+                'dynamic_pages_creator_page_keywords_error',
+                'Error: No page keywords provided. Please enter some page keywords to create pages.',
                 'error'
             );
             return '';
         }
     
-        $titles_array = explode(',', $titles);
+        $keywords_array = explode(',', $keywords);
         $created_pages = [];
         $errors = [];
         $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
         $timestamp = current_time('mysql');
     
-        foreach ($titles_array as $title) {
-            $title = trim($title);
-            if (empty($title)) {
+        foreach ($keywords_array as $keyword) {
+            $keyword = trim($keyword);
+            if (empty($keyword)) {
                 add_settings_error(
                     'dynamic_pages_creator_options',
-                    'dynamic_pages_creator_empty_title',
-                    'Error: Empty titles are not allowed. Please enter valid titles to create pages.',
+                    'dynamic_pages_creator_empty_keyword',
+                    'Error: Empty keywords are not allowed. Please enter valid keywords to create pages.',
                     'error'
                 );
                 continue;
             }
     
-            $slug = sanitize_title($title);
+            $slug = sanitize_title($keyword);
             if (!get_page_by_path($slug, OBJECT, 'page') && !array_key_exists($slug, $existing_pages_ids)) {
                 if ($template_id > 0 && function_exists('duplicate_post_create_duplicate')) {
                     $template_post = get_post($template_id);
@@ -74,7 +74,7 @@ class DPC_Page_Management {
                         $new_post_id = duplicate_post_create_duplicate($template_post, 'publish', $parent_id); 
                         wp_update_post([
                             'ID'          => $new_post_id,
-                            'post_title'  => $title,
+                            'post_title'  => $keyword,
                             'post_name'   => $slug,
                             'post_status' => 'publish',  // Ensure the status is set to publish
                         ]);
@@ -82,7 +82,7 @@ class DPC_Page_Management {
                     }
                 } else {
                     $page_data = [
-                        'post_title'    => $title,
+                        'post_title'    => $keyword,
                         'post_content'  => 'This is an automatically generated page using the default page template.',
                         'post_status'   => 'publish',
                         'post_type'     => 'page',
@@ -93,20 +93,20 @@ class DPC_Page_Management {
                 }
     
                 if ($page_id && !is_wp_error($page_id)) {
-                    $existing_pages_ids[$page_id] = ['date' => $timestamp, 'title' => $title, 'slug' => $slug];
-                    $created_pages[] = $title;
+                    $existing_pages_ids[$page_id] = ['date' => $timestamp, 'title' => $keyword, 'slug' => $slug];
+                    $created_pages[] = $keyword;
                 } else {
-                    $errors[] = $title;
+                    $errors[] = $keyword;
                 }
             } else {
-                $errors[] = $title . ' (already exists)';
+                $errors[] = $keyword . ' (already exists)';
             }
         }
     
         update_option('dynamic_pages_creator_existing_pages_ids', $existing_pages_ids);
     
         if (!empty($created_pages)) {
-            set_transient('dpc_page_creation_success', 'Successfully created pages for the following titles: ' . implode(', ', $created_pages), 30);
+            set_transient('dpc_page_creation_success', 'Successfully created pages for the following keywords: ' . implode(', ', $created_pages), 30);
         }
     
         if (!empty($errors)) {
@@ -125,12 +125,12 @@ class DPC_Page_Management {
     // Function to display settings errors after redirect
     public function display_settings_errors() {
         if ($message = get_transient('dpc_page_creation_success')) {
-            add_settings_error('dynamic_pages_creator_options', 'dynamic_pages_creator_page_titles_success', $message, 'updated');
+            add_settings_error('dynamic_pages_creator_options', 'dynamic_pages_creator_page_keywords_success', $message, 'updated');
             delete_transient('dpc_page_creation_success');
         }
         if ($errors = get_transient('dpc_page_creation_errors')) {
             foreach ($errors as $error) {
-                add_settings_error('dynamic_pages_creator_options', 'dynamic_pages_creator_page_titles_error', $error, 'error');
+                add_settings_error('dynamic_pages_creator_options', 'dynamic_pages_creator_page_keywords_error', $error, 'error');
             }
             delete_transient('dpc_page_creation_errors');
         }

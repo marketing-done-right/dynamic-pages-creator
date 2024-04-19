@@ -1,6 +1,6 @@
 <div class="wrap">
     <h2>Dynamic Pages Creator</h2>
-    <p>Use this page to create dynamic pages with SEO meta tags based on page titles.</p>
+    <p>Use this page to create dynamic pages with SEO meta tags based on page keywords.</p>
     <?php settings_errors('dynamic_pages_creator_options'); ?>
     <form method="post" action="options.php">
         <?php

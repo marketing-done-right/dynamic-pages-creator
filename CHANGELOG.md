@@ -6,9 +6,9 @@ All notable changes to the "Dynamic Pages Creator with SEO" plugin will be docum
 
 ### Added
 - Initial release of the Dynamic Pages Creator with SEO.
-- Ability to create dynamic pages from a list of titles through the WordPress admin panel.
-- Automatic SEO meta tag generation based on page titles.
-- Shortcode support for dynamically inserting page titles into content, with a default option.
+- Ability to create dynamic pages from a list of keywords through the WordPress admin panel.
+- Automatic SEO meta tag generation based on page keywords.
+- Shortcode support for dynamically inserting page keywords into content, with a default option.
 - Integration with Yoast SEO plugin for enhanced SEO features.
 - Security practices implemented to prevent unauthorized access and data validation.
 - Admin menus for managing plugin settings and viewing created pages.
