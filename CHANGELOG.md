@@ -2,6 +2,14 @@
 
 All notable changes to the "Dynamic Pages Creator with SEO" plugin will be documented in this file.
 
+## [1.1.0] - 2024-04-20
+
+### Added
+- Added the ability to select an existing draft as a template for creating new pages, enabling users to replicate page structure and content including custom fields and meta data.
+
+### Improved
+- Enhanced page duplication process to include all associated meta data and custom fields, ensuring comprehensive page clones.
+
 ## [1.0.0] - 2024-04-15
 
 ### Added

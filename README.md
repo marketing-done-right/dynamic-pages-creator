@@ -15,6 +15,7 @@ This plugin simplifies the management of content creation and SEO optimization b
 
 - **Automatic Page Creation**: Generate pages from a list of keywords provided through the plugin's settings page.
 - **SEO Enhancement**: Automatically apply SEO meta tags based on the page keywords.
+- **Draft Template Selection**: Users can select an existing draft page as a template when creating new pages, allowing the duplication of page structure, content, custom fields, and meta data.
 - **Shortcode Support**: Use the `[keyword default="text"]` shortcode to insert keywords dynamically in page content.
 - **Yoast SEO Compatibility**: Works seamlessly with Yoast SEO to enhance your site's SEO capabilities. [^1]
 
@@ -35,7 +36,7 @@ Our plugin adheres to the best security practices, including:
 ## Usage
 
 ### Creating Pages
-Navigate to the 'Dynamic Pages Creator' menu in the admin dashboard to create new pages by entering keywords and specifying SEO settings.
+Navigate to the 'Dynamic Pages Creator' menu in the admin dashboard. Here, you can create new pages by entering keywords, choosing a parent page, and optionally selecting an existing draft page as a template. This replicates the selected draft's content, structure, and SEO settings onto the new page.
 
 ### Using the Shortcode
 You can dynamically insert page keywords into your content using:
@@ -54,6 +55,9 @@ Contributions are what make the open source community such an amazing place to l
 3. Commit your Changes (git commit -m 'Add some AmazingFeature')
 4. Push to the Branch (git push origin feature/AmazingFeature)
 5. Open a Pull Request
+
+## Changelog
+See the [Changelog](CHANGELOG.md) for a full list of changes and additions.
 
 ## License
 
