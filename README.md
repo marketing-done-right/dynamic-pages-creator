@@ -57,10 +57,10 @@ Contributions are what make the open source community such an amazing place to l
 5. Open a Pull Request
 
 ## Changelog
-See the [Changelog](CHANGELOG.md) for a full list of changes and additions.
+See the [CHANGELOG](CHANGELOG.md) for a full list of changes and additions.
 
 ## License
 
-Distributed under the GPL v3 License. See LICENSE for more information.
+Distributed under the GPL v3 License. See [LICENSE](LICENSE.md) for more information.
 
 [^1]: This plugin is not officially associated with Yoast SEO or any other third-party plugin unless otherwise specified.
