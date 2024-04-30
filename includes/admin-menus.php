@@ -93,6 +93,13 @@ class DPC_Admin_Menus {
             'clearFields' => $shouldClearFields ? 'true' : 'false'
         ));
 
+        // Batch processing script
+        wp_enqueue_script('dpc-admin-batch-js', plugins_url('js/dpc-batch-process.js', __FILE__), ['jquery'], null, true);
+        wp_localize_script('dpc-admin-batch-js', 'dpcAjax', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce'    => wp_create_nonce('dpc-ajax-nonce')
+        ]);
+
         // Reset the flag after passing it to JavaScript
         if ($shouldClearFields) {
             update_option('dpc_should_clear_fields', false);
