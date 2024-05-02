@@ -2,6 +2,20 @@
 
 All notable changes to the "Dynamic Pages Creator with SEO" plugin will be documented in this file.
 
+## [1.1.2] - 2024-05-02
+
+### Added
+- SEO template selection feature for individual pages created by the Dynamic Pages Creator plugin. Users can now choose between using the plugin's global SEO settings or the default settings provided by their theme or another SEO plugin.
+
+### Fixed
+- PHP warning related to attempting to access array offsets on a value of type bool.
+- Issues with transient and clearing logic for page creation, ensuring that settings and metadata are preserved correctly.
+- Deletion logic to accurately remove entries from the Created Pages list when pages are deleted.
+
+### Changed
+- Ensured that default plugin options are correctly initialized upon plugin activation.
+- Updated plugin versioning from 1.1.0 to 1.1.2 to reflect the incremental improvements and fixes.
+
 ## [1.1.0] - 2024-04-20
 
 ### Added

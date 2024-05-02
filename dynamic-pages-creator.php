@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Dynamic Pages Creator with SEO
  * Description: Automatically generates web pages based on predefined page keywords and dynamically assigns SEO meta tags to each page.
- * Version: 1.1.0
+ * Version: 1.1.2
  * Author: Hans Steffens & Marketing Done Right LLC
  * Author URI: https://marketingdr.co
  * License: GPL v3 or later

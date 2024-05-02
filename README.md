@@ -15,6 +15,7 @@ This plugin simplifies the management of content creation and SEO optimization b
 
 - **Automatic Page Creation**: Generate pages from a list of keywords provided through the plugin's settings page.
 - **SEO Enhancement**: Automatically apply SEO meta tags based on the page keywords.
+- **SEO Settings Control**: Users can choose between global SEO settings provided by the plugin or default settings from their existing theme or other SEO plugins. This setting is available for each page created through the Dynamic Pages Creator, allowing for more granular control over SEO.
 - **Draft Template Selection**: Users can select an existing draft page as a template when creating new pages, allowing the duplication of page structure, content, custom fields, and meta data.
 - **Shortcode Support**: Use the `[keyword default="text"]` shortcode to insert keywords dynamically in page content.
 - **Yoast SEO Compatibility**: Works seamlessly with Yoast SEO to enhance your site's SEO capabilities. [^1]
@@ -33,6 +34,11 @@ Our plugin adheres to the best security practices, including:
 3. Activate the plugin through the 'Plugins' screen in WordPress.
 4. Use the plugin's settings page to configure and start creating pages.
 
+## Configuration
+After installation, navigate to the 'Dynamic Pages Creator' menu in your WordPress admin panel to configure the plugin:
+- Set page keywords, parent page, and template preferences.
+- Choose the SEO settings for each page individually or apply global settings.
+
 ## Usage
 
 ### Creating Pages
@@ -45,6 +51,13 @@ You can dynamically insert page keywords into your content using:
 ```
 
 If the page was not created via the plugin, "Default Keyword" will be displayed.
+
+## Frequently Asked Questions
+**Q: How do I change SEO settings for a created page?**
+**A:** Navigate to the page editor where you'll find the 'SEO Settings Override' box. Select your preferred SEO settings for the page.
+
+**Q: What happens if I deactivate the plugin?**
+**A:** Deactivating the plugin will stop new pages from being created and managed by it, but existing pages will remain intact.
 
 ## Contributing
 

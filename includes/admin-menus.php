@@ -171,8 +171,11 @@ class DPC_Admin_Menus {
     public function seo_template_field_callback() {
         $options = get_option('dynamic_pages_creator_options');
         $template = $options['seo_template'] ?? 'global'; // Default to global if not set
-        echo '<input type="radio" name="dynamic_pages_creator_options[seo_template]" value="global"' . checked($template, 'global', false) . '> Global<br>';
-        echo '<input type="radio" name="dynamic_pages_creator_options[seo_template]" value="default"' . checked($template, 'default', false) . '> Default<br>';
+        // HTML form inputs
+        echo '<p>Select how SEO settings should be applied to pages:</p>';
+        echo '<label><input type="radio" name="dynamic_pages_creator_options[seo_template]" value="global" ' . checked($template, 'global', false) . '> <strong>Global:</strong> Apply the SEO settings defined in the plugin\'s SEO Settings panel to this page.</label><br>';
+        echo '<label><input type="radio" name="dynamic_pages_creator_options[seo_template]" value="default" ' . checked($template, 'default', false) . '> <strong>Default:</strong> Use the SEO settings from your WordPress theme or another SEO plugin that may be active.</label><br>';
+        echo '<p style="font-size: small; color: #666;">Note: The "Default" setting allows the page to inherit SEO settings from other plugins (like Yoast) or the theme, bypassing the plugin\'s SEO configuration.</p>';
     }
 
     public function dynamic_pages_creator_draft_page_field_callback() {
