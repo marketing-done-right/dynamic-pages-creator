@@ -81,6 +81,15 @@ class DPC_Admin_Menus {
                 'updated'
             );
         }
+
+        // Add a new field for choosing SEO template
+        add_settings_field(
+            'seo_template', // ID
+            'SEO Template', // Title
+            array($this, 'seo_template_field_callback'), // Callback
+            'dynamic-pages-creator', // Page
+            'dynamic_pages_creator_main' // Section
+        );
         
     }
 
@@ -109,7 +118,7 @@ class DPC_Admin_Menus {
     $new_input['page_keywords'] = isset($inputs['page_keywords']) ? sanitize_text_field($inputs['page_keywords']) : '';
     $new_input['parent'] = isset($inputs['parent']) ? absint($inputs['parent']) : 0;
     $new_input['page_template'] = isset($inputs['page_template']) ? absint($inputs['page_template']) : 0;
-    $new_input['default_seo_setting'] = isset($inputs['default_seo_setting']) ? sanitize_text_field($inputs['default_seo_setting']) : 'global'; // Assuming 'default_seo_setting' is part of the form
+    $new_input['seo_template'] = in_array($inputs['seo_template'], ['global', 'default']) ? $inputs['seo_template'] : 'global';
 
     error_log('Sanitized inputs: ' . print_r($new_input, true));  // Log the sanitized inputs
 
@@ -157,6 +166,13 @@ class DPC_Admin_Menus {
     public function seo_meta_description_field_callback() {
         $description_template = get_option('seo_meta_description_template', 'Learn more about [keyword] on our site.');
         echo "<textarea id='seo_meta_description_template' name='seo_meta_description_template' rows='5' style='width: 100%;'>" . esc_textarea($description_template) . "</textarea>";
+    }
+
+    public function seo_template_field_callback() {
+        $options = get_option('dynamic_pages_creator_options');
+        $template = $options['seo_template'] ?? 'global'; // Default to global if not set
+        echo '<input type="radio" name="dynamic_pages_creator_options[seo_template]" value="global"' . checked($template, 'global', false) . '> Global<br>';
+        echo '<input type="radio" name="dynamic_pages_creator_options[seo_template]" value="default"' . checked($template, 'default', false) . '> Default<br>';
     }
 
     public function dynamic_pages_creator_draft_page_field_callback() {

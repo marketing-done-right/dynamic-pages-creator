@@ -55,6 +55,7 @@ class DPC_Page_Management {
         $keywords = isset($options['page_keywords']) ? $options['page_keywords'] : '';
         $parent_id = isset($options['parent']) ? intval($options['parent']) : 0;
         $template_id = isset($options['page_template']) ? intval($options['page_template']) : 0;
+        $seo_template = isset($options['seo_template']) ? $options['seo_template'] : 'global';  // Default to global if not set
     
         if (empty($keywords)) {
             add_settings_error(
@@ -114,6 +115,7 @@ class DPC_Page_Management {
     
                 if ($page_id && !is_wp_error($page_id)) {
                     $existing_pages_ids[$page_id] = ['date' => $timestamp, 'title' => $keyword, 'slug' => $slug];
+                    update_post_meta($page_id, '_dpc_seo_override', $seo_template);  // Save the SEO template setting
                     $created_pages[] = $keyword;
                 } else {
                     $errors[] = $keyword;

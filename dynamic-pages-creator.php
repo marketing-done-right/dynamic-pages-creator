@@ -51,25 +51,22 @@ add_action('plugins_loaded', 'dpc_init');
 register_activation_hook(__FILE__, 'dpc_activate');
 
 function dpc_activate() {
-    // Ensure the scheduled cleanup is set
+    // Schedule cleanup if not already scheduled
     if (!wp_next_scheduled('dpc_verify_pages_ids_event')) {
         wp_schedule_event(time(), 'daily', 'dpc_verify_pages_ids_event');
     }
 
     // Initialize default options
     $default_options = array(
-        'default_seo_setting' => 'global',
+        'seo_template' => 'global',  // Ensure 'global' is default unless specified otherwise
         'parent' => 0,
         'page_template' => 0
     );
 
-    if (!get_option('dynamic_pages_creator_options')) {
-        update_option('dynamic_pages_creator_options', $default_options);
-    } else {
-        $existing_options = get_option('dynamic_pages_creator_options');
-        $updated_options = array_merge($default_options, $existing_options);
-        update_option('dynamic_pages_creator_options', $updated_options);
-    }
+    // Get current settings and merge with defaults if not already set
+    $options = get_option('dynamic_pages_creator_options', []);
+    $options = array_merge($default_options, $options); // Defaults are overridden by existing settings
+    update_option('dynamic_pages_creator_options', $options);
 }
 
 // Hook into the event
