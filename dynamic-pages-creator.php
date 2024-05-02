@@ -51,8 +51,24 @@ add_action('plugins_loaded', 'dpc_init');
 register_activation_hook(__FILE__, 'dpc_activate');
 
 function dpc_activate() {
+    // Ensure the scheduled cleanup is set
     if (!wp_next_scheduled('dpc_verify_pages_ids_event')) {
         wp_schedule_event(time(), 'daily', 'dpc_verify_pages_ids_event');
+    }
+
+    // Initialize default options
+    $default_options = array(
+        'default_seo_setting' => 'global',
+        'parent' => 0,
+        'page_template' => 0
+    );
+
+    if (!get_option('dynamic_pages_creator_options')) {
+        update_option('dynamic_pages_creator_options', $default_options);
+    } else {
+        $existing_options = get_option('dynamic_pages_creator_options');
+        $updated_options = array_merge($default_options, $existing_options);
+        update_option('dynamic_pages_creator_options', $updated_options);
     }
 }
 
@@ -64,10 +80,12 @@ function dpc_run_scheduled_cleanup() {
     $page_management->verify_existing_pages_ids();
 }
 
-// Optional: Clear scheduled event on plugin deactivation
+// Optional: Clear scheduled event and cleanup options on plugin deactivation
 register_deactivation_hook(__FILE__, 'dpc_deactivate');
 
 function dpc_deactivate() {
     $timestamp = wp_next_scheduled('dpc_verify_pages_ids_event');
     wp_unschedule_event($timestamp, 'dpc_verify_pages_ids_event');
+    // clear the plugin's main option
+    delete_option('dynamic_pages_creator_options');
 }
