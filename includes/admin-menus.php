@@ -127,12 +127,13 @@ class DPC_Admin_Menus {
     }
 
     public function parent_field_callback() {
-        $options = get_option('dynamic_pages_creator_options');
+        $options = get_option('dynamic_pages_creator_options', []);  // Default to an empty array if the option doesn't exist
         $pages = get_pages();
         echo '<select id="dynamic_pages_creator_parent_field" name="dynamic_pages_creator_options[parent]">';
         echo '<option value="0">Main Page (no parent)</option>';
         foreach ($pages as $page) {
-            $selected = ($options['parent'] == $page->ID) ? 'selected' : '';
+            // Check if options and parent are set and not false
+            $selected = (is_array($options) && isset($options['parent']) && $options['parent'] == $page->ID) ? 'selected' : '';
             echo '<option value="' . esc_attr($page->ID) . '" ' . $selected . '>' . esc_html($page->post_title) . '</option>';
         }
         echo '</select>';
