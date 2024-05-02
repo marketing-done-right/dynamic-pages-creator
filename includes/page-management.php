@@ -14,6 +14,22 @@ class DPC_Page_Management {
         add_action('admin_init', array($this, 'check_page_submission'));
         add_action('before_delete_post', array($this, 'handle_page_deletion'));
         add_action('admin_notices', array($this, 'display_settings_errors'));
+        add_action('wp_loaded', array($this, 'verify_existing_pages_ids'));
+    }
+
+    public function verify_existing_pages_ids() {
+        $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
+        $valid_ids = [];
+
+        foreach ($existing_pages_ids as $page_id => $info) {
+            if (get_post_status($page_id)) {  // Checks if the post exists and is not trashed.
+                $valid_ids[$page_id] = $info;
+            } else {
+                error_log("Page ID $page_id does not exist and was removed from existing pages IDs.");
+            }
+        }
+
+        update_option('dynamic_pages_creator_existing_pages_ids', $valid_ids);
     }
 
     public function check_page_submission() {
@@ -34,6 +50,8 @@ class DPC_Page_Management {
     
 
     public function create_pages($options) {
+        error_log('Received options: ' . print_r($options, true));  // Log the received options at the start
+    
         $keywords = isset($options['page_keywords']) ? $options['page_keywords'] : '';
         $parent_id = isset($options['parent']) ? intval($options['parent']) : 0;
         $template_id = isset($options['page_template']) ? intval($options['page_template']) : 0;
@@ -52,6 +70,8 @@ class DPC_Page_Management {
         $created_pages = [];
         $errors = [];
         $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
+        error_log('Existing pages IDs at start: ' . print_r($existing_pages_ids, true));  // Log the existing pages IDs at the start
+    
         $timestamp = current_time('mysql');
     
         foreach ($keywords_array as $keyword) {
@@ -71,7 +91,7 @@ class DPC_Page_Management {
                 if ($template_id > 0 && function_exists('duplicate_post_create_duplicate')) {
                     $template_post = get_post($template_id);
                     if ($template_post && $template_post->post_status === 'draft') {
-                        $new_post_id = duplicate_post_create_duplicate($template_post, 'publish', $parent_id); 
+                        $new_post_id = duplicate_post_create_duplicate($template_post, 'publish', $parent_id);
                         wp_update_post([
                             'ID'          => $new_post_id,
                             'post_title'  => $keyword,
@@ -103,9 +123,10 @@ class DPC_Page_Management {
             }
         }
     
-        update_option('dynamic_pages_creator_existing_pages_ids', $existing_pages_ids);
+        error_log('Updated existing pages IDs before saving: ' . print_r($existing_pages_ids, true));  // Log before updating option
     
         if (!empty($created_pages)) {
+            update_option('dynamic_pages_creator_existing_pages_ids', $existing_pages_ids);
             set_transient('dpc_page_creation_success', 'Successfully created pages for the following keywords: ' . implode(', ', $created_pages), 30);
         }
     
@@ -120,7 +141,7 @@ class DPC_Page_Management {
             wp_redirect(menu_page_url('dynamic-pages-creator', false));
             exit;
         }
-    }
+    }    
 
     // Function to display settings errors after redirect
     public function display_settings_errors() {

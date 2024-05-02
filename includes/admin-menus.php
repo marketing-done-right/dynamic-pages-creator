@@ -103,12 +103,18 @@ class DPC_Admin_Menus {
 
     // Validation functions for settings fields
     public function validate_options($inputs) {
-        $new_input = [];
-        $inputs['page_keywords'] = sanitize_text_field($inputs['page_keywords']);
-        $inputs['parent'] = absint($inputs['parent']);
-        $new_input['page_template'] = absint($inputs['page_template']);
-        return $inputs;
-    }
+    error_log('Received form inputs: ' . print_r($inputs, true));  // Log the received inputs
+
+    $new_input = [];
+    $new_input['page_keywords'] = isset($inputs['page_keywords']) ? sanitize_text_field($inputs['page_keywords']) : '';
+    $new_input['parent'] = isset($inputs['parent']) ? absint($inputs['parent']) : 0;
+    $new_input['page_template'] = isset($inputs['page_template']) ? absint($inputs['page_template']) : 0;
+    $new_input['default_seo_setting'] = isset($inputs['default_seo_setting']) ? sanitize_text_field($inputs['default_seo_setting']) : 'global'; // Assuming 'default_seo_setting' is part of the form
+
+    error_log('Sanitized inputs: ' . print_r($new_input, true));  // Log the sanitized inputs
+
+    return $new_input;
+}
 
     // Callback functions for settings fields
     public function main_settings_section_callback() {

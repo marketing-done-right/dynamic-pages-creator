@@ -46,3 +46,28 @@ function dpc_init()
 }
 
 add_action('plugins_loaded', 'dpc_init');
+
+// Schedule the cleanup event on plugin activation
+register_activation_hook(__FILE__, 'dpc_activate');
+
+function dpc_activate() {
+    if (!wp_next_scheduled('dpc_verify_pages_ids_event')) {
+        wp_schedule_event(time(), 'daily', 'dpc_verify_pages_ids_event');
+    }
+}
+
+// Hook into the event
+add_action('dpc_verify_pages_ids_event', 'dpc_run_scheduled_cleanup');
+
+function dpc_run_scheduled_cleanup() {
+    $page_management = new DPC_Page_Management();
+    $page_management->verify_existing_pages_ids();
+}
+
+// Optional: Clear scheduled event on plugin deactivation
+register_deactivation_hook(__FILE__, 'dpc_deactivate');
+
+function dpc_deactivate() {
+    $timestamp = wp_next_scheduled('dpc_verify_pages_ids_event');
+    wp_unschedule_event($timestamp, 'dpc_verify_pages_ids_event');
+}
