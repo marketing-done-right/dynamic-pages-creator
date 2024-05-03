@@ -2,7 +2,15 @@
 
 All notable changes to the "Dynamic Pages Creator with SEO" plugin will be documented in this file.
 
-## [1.1.2] - 2024-05-02
+## [1.2.0] - 2024-05-03
+
+### Added
+- Custom slug formatting feature: Users can now specify custom slugs for pages using a `[keyword]` placeholder. This allows for more flexible and meaningful URL structures directly from the plugin settings.
+
+### Improved
+- Improved explanations in the settings interface to help users understand the difference between "Global" and "Default" SEO settings.
+
+## [1.1.1] - 2024-05-02
 
 ### Added
 - SEO template selection feature for individual pages created by the Dynamic Pages Creator plugin. Users can now choose between using the plugin's global SEO settings or the default settings provided by their theme or another SEO plugin.
@@ -14,7 +22,6 @@ All notable changes to the "Dynamic Pages Creator with SEO" plugin will be docum
 
 ### Changed
 - Ensured that default plugin options are correctly initialized upon plugin activation.
-- Updated plugin versioning from 1.1.0 to 1.1.2 to reflect the incremental improvements and fixes.
 
 ## [1.1.0] - 2024-04-20
 

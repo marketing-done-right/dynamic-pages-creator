@@ -62,6 +62,9 @@ class DPC_Admin_Menus {
         
         add_settings_field('dynamic_pages_creator_keyword_field', 'Page Keywords (comma-separated)', array($this, 'keyword_field_callback'), 'dynamic-pages-creator', 'dynamic_pages_creator_main');
         add_settings_field('dynamic_pages_creator_parent_field', 'Parent Page', array($this, 'parent_field_callback'), 'dynamic-pages-creator', 'dynamic_pages_creator_main');
+
+        // Field for custom slug format
+        add_settings_field('dynamic_pages_creator_slug_format', 'Custom Slug Format', array($this, 'slug_format_field_callback'), 'dynamic-pages-creator', 'dynamic_pages_creator_main');
     
         // SEO Settings
         register_setting('dynamic_pages_creator_seo_settings', 'seo_meta_title_template');
@@ -176,6 +179,14 @@ class DPC_Admin_Menus {
         echo '<label><input type="radio" name="dynamic_pages_creator_options[seo_template]" value="global" ' . checked($template, 'global', false) . '> <strong>Global:</strong> Apply the SEO settings defined in the plugin\'s SEO Settings panel to this page.</label><br>';
         echo '<label><input type="radio" name="dynamic_pages_creator_options[seo_template]" value="default" ' . checked($template, 'default', false) . '> <strong>Default:</strong> Use the SEO settings from your WordPress theme or another SEO plugin that may be active.</label><br>';
         echo '<p style="font-size: small; color: #666;">Note: The "Default" setting allows the page to inherit SEO settings from other plugins (like Yoast) or the theme, bypassing the plugin\'s SEO configuration.</p>';
+    }
+
+    public function slug_format_field_callback() {
+        $options = get_option('dynamic_pages_creator_options');
+        $slug_format = isset($options['slug_format']) ? esc_attr($options['slug_format']) : '';
+        echo "<input style='width:50%;' type='text' id='dynamic_pages_creator_slug_format' name='dynamic_pages_creator_options[slug_format]' value='" . $slug_format . "' />";
+        echo "<p>Enter a custom slug format using [keyword] to include the keyword dynamically.</p>";
+        echo "<p style='font-size: small; color: #666;'>Example: my-[keyword]-page. Leave empty for default slug behavior.</p>";
     }
 
     public function dynamic_pages_creator_draft_page_field_callback() {

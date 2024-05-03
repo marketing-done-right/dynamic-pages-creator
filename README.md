@@ -16,6 +16,7 @@ This plugin simplifies the management of content creation and SEO optimization b
 - **Automatic Page Creation**: Generate pages from a list of keywords provided through the plugin's settings page.
 - **SEO Enhancement**: Automatically apply SEO meta tags based on the page keywords.
 - **SEO Settings Control**: Users can choose between global SEO settings provided by the plugin or default settings from their existing theme or other SEO plugins. This setting is available for each page created through the Dynamic Pages Creator, allowing for more granular control over SEO.
+- **Custom URL Slug Formatting**: To enhance SEO and maintain brand consistency across your site, the Dynamic Pages Creator now supports custom slug formatting. When creating pages, you can specify a slug template using the `[keyword]` placeholder. For example, setting the slug format to `my-[keyword]-page` and using the keyword `Miami` will generate the slug `my-miami-page`. This feature is optional; if no custom format is specified, the plugin will use the default slug derived from the page keyword.
 - **Draft Template Selection**: Users can select an existing draft page as a template when creating new pages, allowing the duplication of page structure, content, custom fields, and meta data.
 - **Shortcode Support**: Use the `[keyword default="text"]` shortcode to insert keywords dynamically in page content.
 - **Yoast SEO Compatibility**: Works seamlessly with Yoast SEO to enhance your site's SEO capabilities. [^1]

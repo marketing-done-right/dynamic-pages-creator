@@ -56,6 +56,7 @@ class DPC_Page_Management {
         $parent_id = isset($options['parent']) ? intval($options['parent']) : 0;
         $template_id = isset($options['page_template']) ? intval($options['page_template']) : 0;
         $seo_template = isset($options['seo_template']) ? $options['seo_template'] : 'global';  // Default to global if not set
+        $slug_format = isset($options['slug_format']) ? $options['slug_format'] : '';
     
         if (empty($keywords)) {
             add_settings_error(
@@ -87,7 +88,9 @@ class DPC_Page_Management {
                 continue;
             }
     
-            $slug = sanitize_title($keyword);
+            // Use the custom slug format if provided, otherwise default to sanitized keyword
+            $slug = $slug_format ? str_replace('[keyword]', sanitize_title($keyword), $slug_format) : sanitize_title($keyword);
+            
             if (!get_page_by_path($slug, OBJECT, 'page') && !array_key_exists($slug, $existing_pages_ids)) {
                 if ($template_id > 0 && function_exists('duplicate_post_create_duplicate')) {
                     $template_post = get_post($template_id);
