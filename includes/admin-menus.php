@@ -122,6 +122,7 @@ class DPC_Admin_Menus {
     $new_input['parent'] = isset($inputs['parent']) ? absint($inputs['parent']) : 0;
     $new_input['page_template'] = isset($inputs['page_template']) ? absint($inputs['page_template']) : 0;
     $new_input['seo_template'] = in_array($inputs['seo_template'], ['global', 'default']) ? $inputs['seo_template'] : 'global';
+    $new_input['slug_format'] = sanitize_text_field($inputs['slug_format']); // Sanitize the custom slug format
 
     error_log('Sanitized inputs: ' . print_r($new_input, true));  // Log the sanitized inputs
 
