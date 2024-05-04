@@ -111,6 +111,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
     private function table_data() {
         $data = [];
         $current_status = isset($_REQUEST['status']) ? $_REQUEST['status'] : 'all';
+        $search_query = isset($_REQUEST['s']) ? $_REQUEST['s'] : '';  // Retrieve the search term from the request
         $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
         foreach ($existing_pages_ids as $id => $info) {
             $post = get_post($id);
@@ -121,6 +122,9 @@ class DPC_Created_Pages_List extends WP_List_Table {
             }
 
             if ($current_status == 'all' || $post->post_status == $current_status) {
+                if (!empty($search_query) && stripos($post->post_title, $search_query) === false) {
+                    continue;  // Skip posts that do not match the search query
+                }
                 $formatted_date = date('Y/m/d \a\t g:i a', strtotime($info['date'])); 
                 $data[] = array(
                     'page_title' => '<a class="row-title" href="' . esc_url(get_edit_post_link($id)) . '">' . esc_html(get_the_title($id)) . '</a>',
@@ -130,6 +134,16 @@ class DPC_Created_Pages_List extends WP_List_Table {
             }
         }
         return $data;
+    }
+
+    public function search_box($text, $input_id) {
+        if (empty($_REQUEST['s']) && !$this->has_items()) {
+            return;
+        }
+        echo '<form method="get">';
+        echo '<input type="hidden" name="page" value="' . esc_attr($_REQUEST['page']) . '"/>';
+        parent::search_box($text, $input_id);
+        echo '</form>';
     }
 
     public function column_default($item, $column_name) {
