@@ -58,16 +58,76 @@ class DPC_Created_Pages_List extends WP_List_Table {
         return $columns;
     }
 
+    public function views() {
+        error_log("Views method called.");  // Debugging
+        $status_links = array();
+        $current = isset($_REQUEST['status']) ? $_REQUEST['status'] : 'all';
+    
+        // Calculate the number of items for each status
+        $num_posts = $this->count_posts();
+        $base_link = esc_url(remove_query_arg(array('action', 'status')));
+    
+        // Prepare status links
+        $total_non_trash = $num_posts->publish + $num_posts->draft; // Sum only non-trashed statuses
+        $status_links['all'] = $this->get_status_link('All', $base_link, $current, 'all', $total_non_trash);
+        $status_links['publish'] = $this->get_status_link('Published', add_query_arg('status', 'publish', $base_link), $current, 'publish', $num_posts->publish);
+        $status_links['draft'] = $this->get_status_link('Draft', add_query_arg('status', 'draft', $base_link), $current, 'draft', $num_posts->draft);
+        $status_links['trash'] = $this->get_status_link('Trash', add_query_arg('status', 'trash', $base_link), $current, 'trash', $num_posts->trash);
+    
+        echo '<ul class="subsubsub">';
+        foreach ($status_links as $key => $link) {
+            echo "<li class='$key'>$link</li>";
+        }
+        echo '</ul>';
+    }
+    
+    private function get_status_link($name, $url, $current, $status, $count) {
+        $class = ($current === $status) ? ' class="current"' : '';
+        $full_url = esc_url(add_query_arg('status', $status, $url));
+        $link = sprintf('<a href="%s"%s>%s <span class="count">(%d)</span></a>', $full_url, $class, $name, $count);
+        return $link;
+    }
+    
+    private function count_posts() {
+        $counts = (object) array(
+            'publish' => 0,
+            'draft' => 0,
+            'trash' => 0
+        );
+    
+        $all_posts = get_option('dynamic_pages_creator_existing_pages_ids', []);
+        foreach ($all_posts as $id => $info) {
+            $post_status = get_post_status($id);
+            if ($post_status) {
+                if (isset($counts->$post_status)) {
+                    $counts->$post_status++;
+                }
+            }
+        }
+    
+        return $counts;
+    }    
+    
     private function table_data() {
         $data = [];
+        $current_status = isset($_REQUEST['status']) ? $_REQUEST['status'] : 'all';
         $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
         foreach ($existing_pages_ids as $id => $info) {
-            $formatted_date = date('Y/m/d \a\t g:i a', strtotime($info['date'])); 
-            $data[] = array(
-                'page_title' => '<a class="row-title" href="' . esc_url(get_edit_post_link($id)) . '">' . esc_html(get_the_title($id)) . '</a>',
-                'slug'       => esc_html(get_post_field('post_name', $id)),
-                'date'       => $formatted_date
-            );
+            $post = get_post($id);
+
+            // Exclude trashed posts from the 'all' view
+            if ($current_status == 'all' && $post->post_status == 'trash') {
+                continue;
+            }
+
+            if ($current_status == 'all' || $post->post_status == $current_status) {
+                $formatted_date = date('Y/m/d \a\t g:i a', strtotime($info['date'])); 
+                $data[] = array(
+                    'page_title' => '<a class="row-title" href="' . esc_url(get_edit_post_link($id)) . '">' . esc_html(get_the_title($id)) . '</a>',
+                    'slug'       => esc_html(get_post_field('post_name', $id)),
+                    'date'       => $formatted_date
+                );
+            }
         }
         return $data;
     }
@@ -89,8 +149,4 @@ class DPC_Created_Pages_List extends WP_List_Table {
         return array();
     }
 
-    private function sort_data($a, $b) {
-        // Set default to no sorting
-        return 0;
-    }
 }
