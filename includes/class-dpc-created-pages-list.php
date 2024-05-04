@@ -12,7 +12,20 @@ class DPC_Created_Pages_List extends WP_List_Table {
         $sortable = $this->get_sortable_columns();
 
         $data = $this->table_data();
-        usort($data, array(&$this, 'sort_data'));
+        
+        // Capture sort and order inputs from the URL
+        $orderBy = !empty($_GET["orderby"]) ? $_GET["orderby"] : 'date'; // Default sort by 'date'
+        $order = !empty($_GET["order"]) ? $_GET["order"] : 'desc'; // Default order
+
+        // Sort the data
+        usort($data, function($a, $b) use ($orderBy, $order) {
+            // If order is descending
+            if ($order === 'asc') {
+                return strcmp($a[$orderBy], $b[$orderBy]);
+            } else {
+                return strcmp($b[$orderBy], $a[$orderBy]);
+            }
+        });
 
         $perPage = 10;
         $currentPage = $this->get_pagenum();
@@ -42,10 +55,11 @@ class DPC_Created_Pages_List extends WP_List_Table {
         $data = [];
         $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
         foreach ($existing_pages_ids as $id => $info) {
+            $formatted_date = date('Y/m/d \a\t g:i a', strtotime($info['date'])); 
             $data[] = array(
-                'page_title' => '<a href="' . esc_url(get_edit_post_link($id)) . '">' . esc_html(get_the_title($id)) . '</a>',
+                'page_title' => '<a class="row-title" href="' . esc_url(get_edit_post_link($id)) . '">' . esc_html(get_the_title($id)) . '</a>',
                 'slug'       => esc_html(get_post_field('post_name', $id)),
-                'date'       => esc_html($info['date'])
+                'date'       => $formatted_date
             );
         }
         return $data;
@@ -57,6 +71,8 @@ class DPC_Created_Pages_List extends WP_List_Table {
 
     protected function get_sortable_columns() {
         $sortable_columns = array(
+            'page_title' => array('page_title', false),  // False indicates the initial sort direction is not ascending
+            'slug'       => array('slug', false),
             'date' => array('date', false)
         );
         return $sortable_columns;
