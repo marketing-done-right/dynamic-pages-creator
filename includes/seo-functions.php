@@ -56,7 +56,7 @@ class DPC_SEO_Functions {
         wp_nonce_field('dpc_seo_override_nonce_action', 'dpc_seo_override_nonce');
 
         // Get the current setting
-        $current_setting = get_post_meta($post->ID, '_dpc_seo_override', true) ?? 'global';
+        $current_setting = get_post_meta($post->ID, '_dpc_seo_override', true) ?? 'default';
         //error_log('SEO Override setting for post ' . $post->ID . ': ' . $current_setting);
 
         // HTML for the meta box
@@ -88,7 +88,7 @@ class DPC_SEO_Functions {
     public function seo_meta_description($description) {
         if (is_singular('page')) {
             $page_id = get_the_ID();
-            $seo_template = get_post_meta($page_id, '_dpc_seo_override', true) ?? 'global';
+            $seo_template = get_post_meta($page_id, '_dpc_seo_override', true) ?? 'default';
             //error_log('Current SEO template for page ' . $page_id . ': ' . $seo_template);
             if ($seo_template == 'global') {
                 $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
@@ -107,7 +107,7 @@ class DPC_SEO_Functions {
     public function seo_meta_title($keyword) {
         if (is_singular('page')) {
             $page_id = get_the_ID();
-            $seo_template = get_post_meta($page_id, '_dpc_seo_override', true) ?? 'global';
+            $seo_template = get_post_meta($page_id, '_dpc_seo_override', true) ?? 'default';
             if ($seo_template == 'global') {
                 $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
                 if (isset($existing_pages_ids[$page_id])) {
@@ -125,7 +125,7 @@ class DPC_SEO_Functions {
     public function fallback_seo_meta_tags() {
         if (is_singular('page')) {
             $page_id = get_the_ID();
-            $seo_template = get_post_meta($page_id, '_dpc_seo_override', true) ?? 'global';
+            $seo_template = get_post_meta($page_id, '_dpc_seo_override', true) ?? 'default';
             if ($seo_template == 'global') {
                 $existing_pages_ids = get_option('dynamic_pages_creator_existing_pages_ids', []);
                 if (isset($existing_pages_ids[$page_id])) {

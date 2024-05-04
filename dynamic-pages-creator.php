@@ -58,7 +58,7 @@ function dpc_activate() {
 
     // Initialize default options
     $default_options = array(
-        'seo_template' => 'global',  // Ensure 'global' is default unless specified otherwise
+        'seo_template' => 'default',  // Ensure 'default' is default unless specified otherwise
         'parent' => 0,
         'page_template' => 0
     );

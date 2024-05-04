@@ -121,8 +121,20 @@ class DPC_Admin_Menus {
     $new_input['page_keywords'] = isset($inputs['page_keywords']) ? sanitize_text_field($inputs['page_keywords']) : '';
     $new_input['parent'] = isset($inputs['parent']) ? absint($inputs['parent']) : 0;
     $new_input['page_template'] = isset($inputs['page_template']) ? absint($inputs['page_template']) : 0;
-    $new_input['seo_template'] = in_array($inputs['seo_template'], ['global', 'default']) ? $inputs['seo_template'] : 'global';
-    $new_input['slug_format'] = sanitize_text_field($inputs['slug_format']); // Sanitize the custom slug format
+    $new_input['seo_template'] = in_array($inputs['seo_template'], ['global', 'default']) ? $inputs['seo_template'] : 'default';
+    
+    // Validate custom slug format
+    $slug_format = sanitize_text_field($inputs['slug_format']);
+    if (!empty($slug_format) && strpos($slug_format, '[keyword]') === false) {
+        add_settings_error(
+            'dynamic_pages_creator_options', 
+            'invalid_slug_format', 
+            'Invalid slug format: Missing [keyword] placeholder. Please include [keyword] in your custom slug format.',
+            'error'
+        );
+        $slug_format = ''; // Consider whether to reset the format if invalid or keep the old one
+    }
+    $new_input['slug_format'] = $slug_format;  // Save the validated format
 
     error_log('Sanitized inputs: ' . print_r($new_input, true));  // Log the sanitized inputs
 
@@ -174,7 +186,7 @@ class DPC_Admin_Menus {
 
     public function seo_template_field_callback() {
         $options = get_option('dynamic_pages_creator_options');
-        $template = $options['seo_template'] ?? 'global'; // Default to global if not set
+        $template = $options['seo_template'] ?? 'default'; // Default to `default` if not set
         // HTML form inputs
         echo '<p>Select how SEO settings should be applied to pages:</p>';
         echo '<label><input type="radio" name="dynamic_pages_creator_options[seo_template]" value="global" ' . checked($template, 'global', false) . '> <strong>Global:</strong> Apply the SEO settings defined in the plugin\'s SEO Settings panel to this page.</label><br>';

@@ -51,11 +51,16 @@ class DPC_Page_Management {
 
     public function create_pages($options) {
         error_log('Received options: ' . print_r($options, true));  // Log the received options at the start
+        // Check if slug format contains [keyword]
+        if (!empty($options['slug_format']) && strpos($options['slug_format'], '[keyword]') === false) {
+            error_log('Aborting page creation due to invalid slug format: Missing [keyword].');
+            return;  // Stop execution
+        }
     
         $keywords = isset($options['page_keywords']) ? $options['page_keywords'] : '';
         $parent_id = isset($options['parent']) ? intval($options['parent']) : 0;
         $template_id = isset($options['page_template']) ? intval($options['page_template']) : 0;
-        $seo_template = isset($options['seo_template']) ? $options['seo_template'] : 'global';  // Default to global if not set
+        $seo_template = isset($options['seo_template']) ? $options['seo_template'] : 'default';  // Default to `default` if not set
         $slug_format = isset($options['slug_format']) ? $options['slug_format'] : '';
     
         if (empty($keywords)) {
