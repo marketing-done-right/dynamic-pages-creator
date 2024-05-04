@@ -33,6 +33,7 @@ defined('ABSPATH') or die('Direct script access disallowed.');
 define('DPC_PATH', plugin_dir_path(__FILE__));
 
 require_once(DPC_PATH . 'includes/admin-menus.php');
+require_once(DPC_PATH . 'includes/class-dpc-created-pages-list.php');
 require_once(DPC_PATH . 'includes/page-management.php');
 require_once(DPC_PATH . 'includes/seo-functions.php');
 require_once(DPC_PATH . 'includes/utilities.php');
