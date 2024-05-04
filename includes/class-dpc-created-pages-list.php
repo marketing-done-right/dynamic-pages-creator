@@ -19,15 +19,22 @@ class DPC_Created_Pages_List extends WP_List_Table {
 
         // Sort the data
         usort($data, function($a, $b) use ($orderBy, $order) {
-            // If order is descending
-            if ($order === 'asc') {
-                return strcmp($a[$orderBy], $b[$orderBy]);
+            if ($orderBy === 'page_title') {
+                // Compare titles without HTML tags
+                $valA = strip_tags($a[$orderBy]);
+                $valB = strip_tags($b[$orderBy]);
             } else {
-                return strcmp($b[$orderBy], $a[$orderBy]);
+                $valA = $a[$orderBy];
+                $valB = $b[$orderBy];
+            }
+            if ($order === 'asc') {
+                return strcmp($valA, $valB);
+            } else {
+                return strcmp($valB, $valA);
             }
         });
 
-        $perPage = 10;
+        $perPage = 20;
         $currentPage = $this->get_pagenum();
         $totalItems = count($data);
 
