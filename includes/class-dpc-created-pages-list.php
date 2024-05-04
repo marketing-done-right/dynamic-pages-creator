@@ -71,8 +71,12 @@ class DPC_Created_Pages_List extends WP_List_Table {
         $total_non_trash = $num_posts->publish + $num_posts->draft; // Sum only non-trashed statuses
         $status_links['all'] = $this->get_status_link('All', $base_link, $current, 'all', $total_non_trash);
         $status_links['publish'] = $this->get_status_link('Published', add_query_arg('status', 'publish', $base_link), $current, 'publish', $num_posts->publish);
-        $status_links['draft'] = $this->get_status_link('Draft', add_query_arg('status', 'draft', $base_link), $current, 'draft', $num_posts->draft);
-        $status_links['trash'] = $this->get_status_link('Trash', add_query_arg('status', 'trash', $base_link), $current, 'trash', $num_posts->trash);
+        if ($num_posts->draft > 0) {
+            $status_links['draft'] = $this->get_status_link('Draft', add_query_arg('status', 'draft', $base_link), $current, 'draft', $num_posts->draft);
+        }
+        if ($num_posts->trash > 0) {
+            $status_links['trash'] = $this->get_status_link('Trash', add_query_arg('status', 'trash', $base_link), $current, 'trash', $num_posts->trash);
+        }
     
         echo '<ul class="subsubsub">';
         foreach ($status_links as $key => $link) {
@@ -122,12 +126,17 @@ class DPC_Created_Pages_List extends WP_List_Table {
             }
 
             if ($current_status == 'all' || $post->post_status == $current_status) {
+                $post_state = '';
                 if (!empty($search_query) && stripos($post->post_title, $search_query) === false) {
                     continue;  // Skip posts that do not match the search query
                 }
+                // Append post state for the 'all' filter
+            if ($current_status == 'all' && $post->post_status !== 'publish') {
+                $post_state .= " — " . ucfirst($post->post_status);
+            }
                 $formatted_date = date('Y/m/d \a\t g:i a', strtotime($info['date'])); 
                 $data[] = array(
-                    'page_title' => '<a class="row-title" href="' . esc_url(get_edit_post_link($id)) . '">' . esc_html(get_the_title($id)) . '</a>',
+                    'page_title' => '<a class="row-title" href="' . esc_url(get_edit_post_link($id)) . '">' . esc_html(get_the_title($id)) . '</a><strong><span style="font-size:14px; class="post-state">'. $post_state .'</strong></span>',
                     'slug'       => esc_html(get_post_field('post_name', $id)),
                     'date'       => $formatted_date
                 );
