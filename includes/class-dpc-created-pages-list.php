@@ -136,6 +136,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
             }
                 $formatted_date = date('Y/m/d \a\t g:i a', strtotime($info['date'])); 
                 $data[] = array(
+                    'ID'          => $post->ID,
                     'page_title' => '<a class="row-title" href="' . esc_url(get_edit_post_link($id)) . '">' . esc_html(get_the_title($id)) . '</a><strong><span style="font-size:14px; class="post-state">'. $post_state .'</strong></span>',
                     'slug'       => esc_html(get_post_field('post_name', $id)),
                     'date'       => $formatted_date
@@ -155,6 +156,49 @@ class DPC_Created_Pages_List extends WP_List_Table {
         echo '</form>';
     }
 
+    protected function column_page_title($item) {
+        $post_id = $item['ID'];
+        $post_status = get_post_status($post_id);
+    
+        // Generate edit, trash, restore, and delete links with security nonces
+        $edit_link = admin_url(sprintf('post.php?post=%s&action=edit', $post_id));
+
+        // Ensure the base URL is correct and add the nonce.
+        $base_url = admin_url('admin.php');
+        $trash_link = wp_nonce_url("$base_url?page=dynamic-pages-view-pages&action=trash&post=$post_id", 'trash-post_' . $post_id);
+        $restore_link = wp_nonce_url("$base_url?page=dynamic-pages-view-pages&action=restore&post=$post_id", 'restore-post_' . $post_id);
+        $delete_link = wp_nonce_url("$base_url?page=dynamic-pages-view-pages&action=delete&post=$post_id", 'delete-post_' . $post_id);
+
+
+    
+        // Determine the correct action link based on the post status
+        if ($post_status === 'publish') {
+            $view_preview_link = sprintf('<a href="%s" target="_blank">View</a>', get_permalink($post_id));
+        } elseif (in_array($post_status, ['draft', 'pending', 'auto-draft'])) {
+            $view_preview_link = sprintf('<a href="%s" target="_blank">Preview</a>', get_preview_post_link($post_id));
+        } else {
+            $view_preview_link = ''; // No link if the status is not one that allows viewing or previewing
+        }
+    
+        // Set up action array
+        $actions = [
+            'edit' => '<a href="' . esc_url($edit_link) . '">Edit</a>',
+            'view_preview' => $view_preview_link
+        ];
+    
+        if ($post_status !== 'trash') {
+            $actions['trash'] = '<a href="' . esc_url($trash_link) . '">Trash</a>';
+        } else {
+            $actions = [
+                'restore' => '<a href="' . esc_url($restore_link) . '">Restore</a>',
+                'delete' => '<a href="' . esc_url($delete_link) . '">Delete Permanently</a>'
+            ];
+        }
+    
+        return sprintf('%1$s %2$s', $item['page_title'], $this->row_actions($actions));
+    }
+           
+    
     public function column_default($item, $column_name) {
         return $item[$column_name];
     }

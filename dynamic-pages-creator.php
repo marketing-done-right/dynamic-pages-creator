@@ -87,3 +87,40 @@ function dpc_deactivate() {
     // clear the plugin's main option
     delete_option('dynamic_pages_creator_options');
 }
+
+// Hook the function to 'admin_init'
+add_action('admin_init', 'handle_page_actions');
+
+function handle_page_actions() {
+    if (isset($_REQUEST['page'], $_REQUEST['action'], $_REQUEST['post'], $_REQUEST['_wpnonce']) && $_REQUEST['page'] == 'dynamic-pages-view-pages') {
+        $post_id = intval($_REQUEST['post']);
+        $action = $_REQUEST['action'];
+
+        // Verify nonce
+        if (!wp_verify_nonce($_REQUEST['_wpnonce'], $action . '-post_' . $post_id)) {
+            wp_die('Nonce verification failed, action not allowed.', 'Nonce Verification Failed', ['response' => 403]);
+        }
+
+        if (!current_user_can('edit_post', $post_id)) {
+            wp_die('You do not have sufficient permissions to access this page.');
+        }
+
+        switch ($action) {
+            case 'trash':
+                wp_trash_post($post_id);
+                break;
+            case 'restore':
+                wp_untrash_post($post_id);
+                break;
+            case 'delete':
+                wp_delete_post($post_id, true);
+                break;
+        }
+
+        // After performing the action, redirecting to the plugin page helps avoid re-executing the action if the user refreshes the page.
+        wp_redirect(admin_url('admin.php?page=dynamic-pages-view-pages'));
+        exit;
+    }
+}
+add_action('admin_init', 'handle_page_actions');
+
