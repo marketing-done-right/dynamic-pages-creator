@@ -136,9 +136,11 @@ class DPC_Created_Pages_List extends WP_List_Table {
                 $formatted_date = date('Y/m/d \a\t g:i a', strtotime($info['date'])); 
                 $data[] = array(
                     'ID'          => $post->ID,
-                    'page_title' => '<a class="row-title" href="' . esc_url(get_edit_post_link($id)) . '">' . esc_html(get_the_title($id)) . '</a><strong><span style="font-size:14px; class="post-state">'. $post_state .'</strong></span>',
+                    'page_title'  => esc_html(get_the_title($id)),
                     'slug'       => esc_html(get_post_field('post_name', $id)),
-                    'date'       => $formatted_date
+                    'date'       => $formatted_date,
+                    'parent'      => $post->post_parent,
+                    'status'      => $post->post_status
                 );
             }
         }
@@ -158,6 +160,15 @@ class DPC_Created_Pages_List extends WP_List_Table {
     protected function column_page_title($item) {
         $post_id = $item['ID'];
         $post_status = get_post_status($post_id);
+
+        // Title link
+        $title_link = '<a class="row-title" href="' . esc_url(get_edit_post_link($post_id)) . '">' . esc_html(get_the_title($post_id)) . '</a>';
+
+        // Append post state if necessary
+        $post_state = '';
+        if ($post_status === 'draft') {
+            $post_state = ' <strong><span class="post-state" style="font-size:14px;">— Draft</span></strong>';
+        }
     
         // Generate edit, trash, restore, and delete links with security nonces
         $edit_link = admin_url(sprintf('post.php?post=%s&action=edit', $post_id));
@@ -195,7 +206,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
             ];
         }
     
-        return sprintf('%1$s %2$s', $item['page_title'], $this->row_actions($actions));
+        return sprintf('%1$s%2$s %3$s', $title_link, $post_state, $this->row_actions($actions));
     }
     
     public function single_row($item) {
@@ -204,14 +215,73 @@ class DPC_Created_Pages_List extends WP_List_Table {
         echo '</tr>';
     
         // Add Quick Edit form here with nonce
-        echo '<tr class="quick-edit-row" id="quick-edit-' . $item['ID'] . '" style="display: none;">';
+        echo '<tr class="inline-edit-row inline-edit-row-page quick-edit-row quick-edit-row-page inline-edit-page inline-editor quick-edit-row" id="quick-edit-' . $item['ID'] . '" style="display: none;">';
         echo '<td colspan="3">';  // Adjust colspan as per your table structure
-        echo '<div><label>Title:</label><input type="text" name="title" value="' . esc_attr(strip_tags($item['page_title'])) . '" /></div>';
-        echo '<div><label>Slug:</label><input type="text" name="slug" value="' . esc_attr($item['slug']) . '" /></div>';
-        // Include a nonce field for security
-        wp_nonce_field('quick_edit_action', 'quick_edit_nonce');
-        echo '<button class="button button-primary save-quick-edit" data-id="' . $item['ID'] . '">Update</button>';
-        echo '<button class="button cancel-quick-edit" data-id="' . $item['ID'] . '">Cancel</button>';
+        echo '
+        <div class="inline-edit-wrapper" role="region" aria-labelledby="quick-edit-legend">
+    <fieldset class="inline-edit-col-left">
+      <legend class="inline-edit-legend">Quick Edit</legend>
+      <div class="inline-edit-col">
+        <label>
+          <span class="title">Title</span>
+          <span class="input-text-wrap">
+            <input type="text" name="post_title" class="ptitle" value="' . esc_attr(strip_tags($item['page_title'])) . '">
+          </span>
+        </label>
+        <label>
+          <span class="title">Slug</span>
+          <span class="input-text-wrap">
+            <input type="text" name="post_name" value="' . esc_attr($item['slug']) . '" autocomplete="off" spellcheck="false">
+          </span>
+        </label>
+        
+        <br class="clear">
+        
+      </div>
+    </fieldset>
+    <fieldset class="inline-edit-col-right">
+      <div class="inline-edit-col">
+        <label>
+          <span class="title">Parent</span>
+          <select name="post_parent" id="post_parent">
+          <option value="0"' . ($item['parent'] == 0 ? ' selected' : '') . '>Main Page (no parent)</option>';
+            $pages = get_pages();
+            foreach ($pages as $page) {
+                $selected = ($item['parent'] == $page->ID) ? 'selected' : '';
+                echo '<option value="' . esc_attr($page->ID) . '" ' . $selected . '>' . esc_html($page->post_title) . '</option>';
+            }
+            echo '
+          </select>
+        </label>
+        
+        <div class="inline-edit-group wp-clearfix">
+          <label class="inline-edit-status alignleft">
+            <span class="title">Status</span>
+            <select name="_status">';
+                $statuses = get_post_statuses();
+                foreach ($statuses as $status => $label) {
+                    $selected = ($item['status'] == $status) ? 'selected' : '';  // Ensure you have 'status' in $item
+                    echo '<option value="' . esc_attr($status) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+                }
+            echo '</select>
+          </label>
+        </div>
+      </div>
+    </fieldset>
+    <div class="submit inline-edit-save">
+      <input type="hidden" id="_inline_edit" name="_inline_edit" value="361eeddf9d">
+      '. wp_nonce_field('quick_edit_action', 'quick_edit_nonce') .'
+      <button class="button button-primary save save-quick-edit" data-id="' . $item['ID'] . '">Update</button>
+      <button class="button cancel cancel-quick-edit" data-id="' . $item['ID'] . '">Cancel</button>
+      <span class="spinner"></span>
+      <input type="hidden" name="post_view" value="list">
+      <input type="hidden" name="screen" value="edit-page">
+      <div class="notice notice-error notice-alt inline hidden">
+        <p class="error"></p>
+      </div>
+    </div>
+  </div>
+        ';
         echo '</td>';
         echo '</tr>';
     }           

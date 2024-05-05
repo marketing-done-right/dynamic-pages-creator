@@ -133,12 +133,20 @@ function handle_quick_edit_save() {
     $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
     $title = sanitize_text_field($_POST['title']);
     $slug = sanitize_title($_POST['slug']);
+    $parent = intval($_POST['parent']);
+    $status = sanitize_text_field($_POST['status']);
 
     // Update the post
     wp_update_post(array(
         'ID' => $post_id,
         'post_title' => $title,
         'post_name' => $slug,
+        'post_parent' => $parent,
+        'post_status' => $status
     ));
-    wp_send_json_success(array('title' => $title));
+    // Determine the label for the status if needed
+    $status_label = $status === 'draft' ? ' — Draft' : '';
+
+    // Return success with title and slug to update on the client side
+    wp_send_json_success(array('title' => $title, 'slug' => $slug, 'parent' => $parent, 'status' => $status, 'status_label' => $status_label));
 }

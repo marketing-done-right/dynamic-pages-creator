@@ -20,15 +20,37 @@ jQuery(document).ready(function($) {
         var rowData = {
             'action': 'save_quick_edit',
             'post_id': postId,
-            'title': $('#quick-edit-' + postId + ' input[name="title"]').val(),
-            'slug': $('#quick-edit-' + postId + ' input[name="slug"]').val(),
+            'title': $('#quick-edit-' + postId + ' input[name="post_title"]').val(),
+            'slug': $('#quick-edit-' + postId + ' input[name="post_name"]').val(),
+            'parent': $('#quick-edit-' + postId + ' select[name="post_parent"]').val(),
+            'status': $('#quick-edit-' + postId + ' select[name="_status"]').val(),
             'nonce': $('#quick-edit-' + postId + ' input[name="quick_edit_nonce"]').val()
         };
 
         $.post(ajaxurl, rowData, function(response) {
             if (response.success) {
-                // Update the title within the link to maintain the hyperlink and actions
+                // Update the title link text, preserving any HTML structure around the title
                 $('#post-row-' + postId + ' .column-page_title a.row-title').text(response.data.title);
+
+                // Handle the status badge update
+                var statusBadge = $('#post-row-' + postId + ' .post-state');
+                if (response.data.status.toLowerCase() === 'draft') {
+                    if (statusBadge.length === 0) { // If there's no badge, create one
+                        $('#post-row-' + postId + ' .column-page_title').append('<strong><span class="post-state" style="font-size:14px;"> — Draft</span></strong>');
+                    } else {
+                        statusBadge.html(' — Draft'); // If there is already a badge, just change the text
+                    }
+                } else {
+                    statusBadge.remove(); // Remove the badge if the status is not draft
+                }
+
+                // Update slug
+                $('#post-row-' + postId + ' .column-slug').text(response.data.slug);
+
+                // Optionally update parent and status columns if they're visible
+                $('#post-row-' + postId + ' .column-parent').text(response.data.parent_name);
+                $('#post-row-' + postId + ' .column-status').text(response.data.status_label);
+
                 $('#quick-edit-' + postId).hide();
                 $('#post-row-' + postId).show();
             } else {
