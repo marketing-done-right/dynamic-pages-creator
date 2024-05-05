@@ -90,7 +90,6 @@ function dpc_deactivate() {
 
 // Hook the function to 'admin_init'
 add_action('admin_init', 'handle_page_actions');
-
 function handle_page_actions() {
     if (isset($_REQUEST['page'], $_REQUEST['action'], $_REQUEST['post'], $_REQUEST['_wpnonce']) && $_REQUEST['page'] == 'dynamic-pages-view-pages') {
         $post_id = intval($_REQUEST['post']);
@@ -122,5 +121,24 @@ function handle_page_actions() {
         exit;
     }
 }
-add_action('admin_init', 'handle_page_actions');
 
+add_action('wp_ajax_save_quick_edit', 'handle_quick_edit_save');
+function handle_quick_edit_save() {
+    // Check the nonce and then proceed if it's valid
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'quick_edit_action')) {
+        wp_send_json_error(array('message' => 'Nonce verification failed.'));
+        return;
+    }
+
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    $title = sanitize_text_field($_POST['title']);
+    $slug = sanitize_title($_POST['slug']);
+
+    // Update the post
+    wp_update_post(array(
+        'ID' => $post_id,
+        'post_title' => $title,
+        'post_name' => $slug,
+    ));
+    wp_send_json_success(array('title' => $title));
+}

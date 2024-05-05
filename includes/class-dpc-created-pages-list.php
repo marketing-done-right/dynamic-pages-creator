@@ -59,7 +59,6 @@ class DPC_Created_Pages_List extends WP_List_Table {
     }
 
     public function views() {
-        error_log("Views method called.");  // Debugging
         $status_links = array();
         $current = isset($_REQUEST['status']) ? $_REQUEST['status'] : 'all';
     
@@ -183,6 +182,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
         // Set up action array
         $actions = [
             'edit' => '<a href="' . esc_url($edit_link) . '">Edit</a>',
+            'quickedit' => '<a href="#" class="quickedit-action" data-id="' . $post_id . '">Quick Edit</a>',
             'view_preview' => $view_preview_link
         ];
     
@@ -197,7 +197,24 @@ class DPC_Created_Pages_List extends WP_List_Table {
     
         return sprintf('%1$s %2$s', $item['page_title'], $this->row_actions($actions));
     }
-           
+    
+    public function single_row($item) {
+        echo '<tr id="post-row-' . $item['ID'] . '">';
+        $this->single_row_columns($item);
+        echo '</tr>';
+    
+        // Add Quick Edit form here with nonce
+        echo '<tr class="quick-edit-row" id="quick-edit-' . $item['ID'] . '" style="display: none;">';
+        echo '<td colspan="3">';  // Adjust colspan as per your table structure
+        echo '<div><label>Title:</label><input type="text" name="title" value="' . esc_attr(strip_tags($item['page_title'])) . '" /></div>';
+        echo '<div><label>Slug:</label><input type="text" name="slug" value="' . esc_attr($item['slug']) . '" /></div>';
+        // Include a nonce field for security
+        wp_nonce_field('quick_edit_action', 'quick_edit_nonce');
+        echo '<button class="button button-primary save-quick-edit" data-id="' . $item['ID'] . '">Update</button>';
+        echo '<button class="button cancel-quick-edit" data-id="' . $item['ID'] . '">Cancel</button>';
+        echo '</td>';
+        echo '</tr>';
+    }           
     
     public function column_default($item, $column_name) {
         return $item[$column_name];
