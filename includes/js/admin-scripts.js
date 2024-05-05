@@ -35,10 +35,10 @@ jQuery(document).ready(function($) {
                 // Handle the status badge update
                 var statusBadge = $('#post-row-' + postId + ' .post-state');
                 if (response.data.status.toLowerCase() === 'draft') {
-                    if (statusBadge.length === 0) { // If there's no badge, create one
-                        $('#post-row-' + postId + ' .column-page_title').append('<strong><span class="post-state" style="font-size:14px;"> — Draft</span></strong>');
+                    if (statusBadge.length === 0) { // If there's no badge, create one right after the title link
+                        $('#post-row-' + postId + ' .column-page_title a.row-title').after('<strong><span class="post-state" style="font-size:14px;"> — Draft</span></strong>');
                     } else {
-                        statusBadge.html(' — Draft'); // If there is already a badge, just change the text
+                        statusBadge.html(' — Draft'); // If there is already a badge, just update the text
                     }
                 } else {
                     statusBadge.remove(); // Remove the badge if the status is not draft
