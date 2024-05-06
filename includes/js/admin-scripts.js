@@ -75,3 +75,30 @@ jQuery(document).ready(function($) {
         return false;
     });
 });
+
+jQuery(document).ready(function($) {
+    function stripeTable() {
+        // Remove existing stripes
+        $('.dynamic-pages-creator_page_dynamic-pages-view-pages tr').removeClass('odd even');
+
+        // Add stripes only to visible rows
+        $('.dynamic-pages-creator_page_dynamic-pages-view-pages tr:visible').each(function(index) {
+            $(this).addClass((index % 2 == 0) ? 'odd' : 'even');
+        });
+    }
+
+    // Initial striping
+    stripeTable();
+
+    // Reapply striping whenever a quick edit is toggled
+    $('.quickedit-action, .cancel-quick-edit, .save-quick-edit').click(function() {
+        stripeTable();
+    });
+
+    // Also reapply after any operations that might show or hide rows
+    $('.save-quick-edit').click(function() {
+        // Assuming you might be showing/hiding rows on save
+        setTimeout(stripeTable, 100); // Delay to ensure rows are shown/hidden
+    });
+});
+

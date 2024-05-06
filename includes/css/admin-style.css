@@ -1,0 +1,8 @@
+
+.dynamic-pages-creator_page_dynamic-pages-view-pages tr.odd {
+    background-color: #ffffff;
+}
+
+.dynamic-pages-creator_page_dynamic-pages-view-pages tr.even {
+    background-color: #f6f7f7;
+}
