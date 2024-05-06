@@ -98,7 +98,8 @@ class DPC_Admin_Menus {
 
     // Enqueue scripts and styles
     public function enqueue_scripts_and_styles() {
-        wp_enqueue_script('dpc-admin-js', plugins_url('js/admin-scripts.js', __FILE__), array('jquery'), null, true);
+        $script_version = '1.2.0'; // Update the version number to bust the cache
+        wp_enqueue_script('dpc-admin-js', plugins_url('js/admin-scripts.js', __FILE__), array('jquery'), $script_version, true);
         $shouldClearFields = get_option('dpc_should_clear_fields', false);
         // Pass the flag to JavaScript
         wp_localize_script('dpc-admin-js', 'dpcData', array(
@@ -109,8 +110,8 @@ class DPC_Admin_Menus {
         if ($shouldClearFields) {
             update_option('dpc_should_clear_fields', false);
         }
-    
-        wp_enqueue_style('dpc-admin-css', plugins_url('css/admin-style.css', __FILE__));
+        $style_version = '1.2.0'; // Update the version number to bust the cache
+        wp_enqueue_style('dpc-admin-css', plugins_url('css/admin-style.css', __FILE__) , array(), $style_version );
     }
 
     // Validation functions for settings fields
