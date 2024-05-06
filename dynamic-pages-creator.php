@@ -162,6 +162,8 @@ function handle_quick_edit_save() {
     $slug = sanitize_title($_POST['slug']);
     $parent = intval($_POST['parent']);
     $status = sanitize_text_field($_POST['status']);
+    $seo_template = sanitize_text_field($_POST['seo_template']);
+    update_post_meta($post_id, '_dpc_seo_override', $seo_template);
 
     // Update the post
     wp_update_post(array(
@@ -182,6 +184,7 @@ function handle_quick_edit_save() {
         'parent' => $parent, 
         'status' => $status, 
         'status_label' => $status_label,
-        'counts' => $counts
+        'counts' => $counts,
+        'seo_template' => $seo_template === 'global' ? 'Global' : 'Default'
     ));
 }

@@ -53,6 +53,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
         $columns = array(
             'page_title' => 'Page Title',
             'slug'       => 'Slug',
+            'seo_template' => 'SEO Template',
             'date'       => 'Date Created'
         );
         return $columns;
@@ -133,14 +134,16 @@ class DPC_Created_Pages_List extends WP_List_Table {
             if ($current_status == 'all' && $post->post_status !== 'publish') {
                 $post_state .= " — " . ucfirst($post->post_status);
             }
-                $formatted_date = date('Y/m/d \a\t g:i a', strtotime($info['date'])); 
+                $formatted_date = date('Y/m/d \a\t g:i a', strtotime($info['date']));
+                $seo_template = get_post_meta($id, '_dpc_seo_override', true); 
                 $data[] = array(
                     'ID'          => $post->ID,
                     'page_title'  => esc_html(get_the_title($id)),
                     'slug'       => esc_html(get_post_field('post_name', $id)),
                     'date'       => $formatted_date,
                     'parent'      => $post->post_parent,
-                    'status'      => $post->post_status
+                    'status'      => $post->post_status,
+                    'seo_template' => $seo_template
                 );
             }
         }
@@ -208,15 +211,30 @@ class DPC_Created_Pages_List extends WP_List_Table {
     
         return sprintf('%1$s%2$s %3$s', $title_link, $post_state, $this->row_actions($actions));
     }
+
+    protected function column_seo_template($item) {
+        $seo_template = get_post_meta($item['ID'], '_dpc_seo_override', true);
+        echo $seo_template === 'global' ? 'Global' : 'Default';
+    }    
     
     public function single_row($item) {
+        $seo_template = $item['seo_template']; // Fetch the SEO Template setting
+
         echo '<tr id="post-row-' . $item['ID'] . '">';
         $this->single_row_columns($item);
         echo '</tr>';
+
+        // Prepare checked states for radio buttons based on the current SEO template setting
+        $global_checked = $seo_template === 'global' ? ' checked' : '';
+        $default_checked = $seo_template === 'default' ? ' checked' : '';
+        if (empty($global_checked) && empty($default_checked)) {
+            // Default to 'default' if no meta is set
+            $default_checked = ' checked';
+        }
     
         // Add Quick Edit form here with nonce
         echo '<tr class="inline-edit-row inline-edit-row-page quick-edit-row quick-edit-row-page inline-edit-page inline-editor quick-edit-row" id="quick-edit-' . $item['ID'] . '" style="display: none;">';
-        echo '<td colspan="3">';  // Adjust colspan as per your table structure
+        echo '<td colspan="4">';  // Adjust colspan as per your table structure
         echo '
         <div class="inline-edit-wrapper" role="region" aria-labelledby="quick-edit-legend">
     <fieldset class="inline-edit-col-left">
@@ -265,6 +283,15 @@ class DPC_Created_Pages_List extends WP_List_Table {
                 }
             echo '</select>
           </label>
+        </div>
+        <div class="inline-edit-group wp-clearfix">
+            <label class="inline-edit-group">
+                <span class="title">SEO</span>
+                <div class="input-text-wrap">
+                    <label for="seo_global"><input class="'. $global_checked .'" type="radio" name="seo_template" value="global" ' . $global_checked . '/> Global</label>
+                    <label for="seo_default"><input class="'.  $default_checked .'" style="margin-left:15px;" type="radio" name="seo_template" value="default" ' . $default_checked . '/> Default</label>
+                </div>
+            </label>
         </div>
       </div>
     </fieldset>

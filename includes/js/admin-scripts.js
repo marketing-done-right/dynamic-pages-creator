@@ -24,6 +24,7 @@ jQuery(document).ready(function($) {
             'slug': $('#quick-edit-' + postId + ' input[name="post_name"]').val(),
             'parent': $('#quick-edit-' + postId + ' select[name="post_parent"]').val(),
             'status': $('#quick-edit-' + postId + ' select[name="_status"]').val(),
+            'seo_template': $('input[name="seo_template"]:checked').val(),
             'nonce': $('#quick-edit-' + postId + ' input[name="quick_edit_nonce"]').val()
         };
 
@@ -31,6 +32,9 @@ jQuery(document).ready(function($) {
             if (response.success) {
                 // Update the title link text, preserving any HTML structure around the title
                 $('#post-row-' + postId + ' .column-page_title a.row-title').text(response.data.title);
+
+                // Update the SEO Template column
+                $('#post-row-' + postId + ' .column-seo_template').text(response.data.seo_template);
 
                 // Handle the status badge update
                 var statusBadge = $('#post-row-' + postId + ' .post-state');
@@ -60,6 +64,13 @@ jQuery(document).ready(function($) {
                 // Hide the quick edit form and show the row
                 $('#quick-edit-' + postId).hide();
                 $('#post-row-' + postId).show();
+
+                // Reapply odd/even classes
+                $('tr[id^="post-row-"]').each(function(index) {
+                    $(this).removeClass('odd even');
+                    var className = index % 2 === 0 ? 'even' : 'odd';
+                    $(this).addClass(className);
+                });
             } else {
                 alert('Error: ' + response.data.message);
             }
@@ -102,3 +113,41 @@ jQuery(document).ready(function($) {
     });
 });
 
+jQuery(document).ready(function($) {
+    // Function to initialize radio buttons within a specific container
+    function initializeRadioButtons(container) {
+        // Only initialize radio buttons within the given container
+        container.find('input[type="radio"]').each(function() {
+            if ($(this).is(':checked')) {
+                $(this).addClass('checked');
+            }
+        });
+    }
+
+    // Event handler for radio button changes within any Quick Edit row
+    $('.quick-edit-row input[type="radio"]').on('change', function() {
+        var $row = $(this).closest('.quick-edit-row');
+
+        // Remove 'checked' class from all radios in the same row to ensure only one shows the effect
+        $row.find('input[type="radio"]').removeClass('checked');
+
+        // Add 'checked' class to the currently selected radio
+        if ($(this).is(':checked')) {
+            $(this).addClass('checked');
+        }
+    });
+
+    // Reinitialize radio buttons when a Quick Edit is opened
+    $('.quickedit-action').click(function() {
+        var postId = $(this).data('id');
+
+        // Find the Quick Edit row for the clicked action
+        var $quickEditRow = $('#quick-edit-' + postId);
+
+        // Initialize radio buttons only in the opened Quick Edit row
+        initializeRadioButtons($quickEditRow);
+    });
+
+    // Initial setup for all radio buttons on page load
+    initializeRadioButtons($('body'));
+});

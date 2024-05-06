@@ -6,3 +6,23 @@
 .dynamic-pages-creator_page_dynamic-pages-view-pages tr.even {
     background-color: #f6f7f7;
 }
+.inline-edit-row fieldset label[for="seo_global"],
+.inline-edit-row fieldset label[for="seo_default"] {
+    display: inline;
+    margin-bottom: 0.5em;
+}
+
+.dynamic-pages-creator_page_dynamic-pages-view-pages input[type=radio]::before {
+    content: '';
+    display: none;
+}
+.dynamic-pages-creator_page_dynamic-pages-view-pages input[type=radio].checked::before {
+    content: "";
+    display: block;
+    border-radius: 50%;
+    width: .5rem;
+    height: .5rem;
+    margin: .1875rem;
+    background-color: #3582c4;
+    line-height: 1.14285714;
+}
