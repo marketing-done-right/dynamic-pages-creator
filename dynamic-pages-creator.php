@@ -122,6 +122,33 @@ function handle_page_actions() {
     }
 }
 
+function dpc_get_post_counts_by_ids() {
+    global $wpdb;
+    $ids = array_keys(get_option('dynamic_pages_creator_existing_pages_ids', []));
+    if (empty($ids)) {
+        return ['all' => 0, 'publish' => 0, 'draft' => 0, 'trash' => 0];
+    }
+
+    $ids_format = implode(',', array_fill(0, count($ids), '%d'));
+    $sql = $wpdb->prepare("
+        SELECT post_status, COUNT(1) as num_posts 
+        FROM $wpdb->posts 
+        WHERE ID IN ($ids_format) 
+        GROUP BY post_status", 
+        $ids
+    );
+    $results = $wpdb->get_results($sql, OBJECT_K);
+
+    $counts = [
+        'publish' => $results['publish']->num_posts ?? 0,
+        'draft'   => $results['draft']->num_posts ?? 0,
+        'trash'   => $results['trash']->num_posts ?? 0
+    ];
+    $counts['all'] = $counts['publish'] + $counts['draft'];  // Exclude trash from 'all'
+
+    return $counts;
+}
+
 add_action('wp_ajax_save_quick_edit', 'handle_quick_edit_save');
 function handle_quick_edit_save() {
     // Check the nonce and then proceed if it's valid
@@ -146,7 +173,15 @@ function handle_quick_edit_save() {
     ));
     // Determine the label for the status if needed
     $status_label = $status === 'draft' ? ' — Draft' : '';
-
+    // Get the updated counts
+    $counts = dpc_get_post_counts_by_ids();
     // Return success with title and slug to update on the client side
-    wp_send_json_success(array('title' => $title, 'slug' => $slug, 'parent' => $parent, 'status' => $status, 'status_label' => $status_label));
+    wp_send_json_success(array(
+        'title' => $title, 
+        'slug' => $slug, 
+        'parent' => $parent, 
+        'status' => $status, 
+        'status_label' => $status_label,
+        'counts' => $counts
+    ));
 }

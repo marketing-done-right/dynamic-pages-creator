@@ -51,6 +51,13 @@ jQuery(document).ready(function($) {
                 $('#post-row-' + postId + ' .column-parent').text(response.data.parent_name);
                 $('#post-row-' + postId + ' .column-status').text(response.data.status_label);
 
+                // Update the counts in the status filters
+                $('.all .count').text('(' + response.data.counts.all + ')');
+                $('.publish .count').text('(' + response.data.counts.publish + ')');
+                $('.draft .count').text('(' + response.data.counts.draft + ')');
+                $('.trash .count').text('(' + response.data.counts.trash + ')');
+
+                // Hide the quick edit form and show the row
                 $('#quick-edit-' + postId).hide();
                 $('#post-row-' + postId).show();
             } else {
