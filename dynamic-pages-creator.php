@@ -129,15 +129,11 @@ function dpc_get_post_counts_by_ids() {
         return ['all' => 0, 'publish' => 0, 'draft' => 0, 'trash' => 0];
     }
 
-    $ids_format = implode(',', array_fill(0, count($ids), '%d'));
-    $sql = $wpdb->prepare("
-        SELECT post_status, COUNT(1) as num_posts 
-        FROM $wpdb->posts 
-        WHERE ID IN ($ids_format) 
-        GROUP BY post_status", 
-        $ids
-    );
-    $results = $wpdb->get_results($sql, OBJECT_K);
+    // Properly prepare the statement with placeholders
+    $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+    $sql = "SELECT post_status, COUNT(1) as num_posts FROM $wpdb->posts WHERE ID IN ($placeholders) GROUP BY post_status";
+    $prepared_sql = $wpdb->prepare($sql, $ids); // Safely prepare the SQL with the array of IDs
+    $results = $wpdb->get_results($prepared_sql, OBJECT_K);
 
     $counts = [
         'publish' => $results['publish']->num_posts ?? 0,

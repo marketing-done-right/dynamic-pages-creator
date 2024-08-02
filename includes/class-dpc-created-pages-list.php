@@ -20,9 +20,9 @@ class DPC_Created_Pages_List extends WP_List_Table {
         // Sort the data
         usort($data, function($a, $b) use ($orderBy, $order) {
             if ($orderBy === 'page_title') {
-                // Compare titles without HTML tags
-                $valA = strip_tags($a[$orderBy]);
-                $valB = strip_tags($b[$orderBy]);
+                // Compare titles without HTML tags using WordPress's recommended function
+                $valA = wp_strip_all_tags($a[$orderBy]);
+                $valB = wp_strip_all_tags($b[$orderBy]);
             } else {
                 $valA = $a[$orderBy];
                 $valB = $b[$orderBy];
@@ -79,9 +79,21 @@ class DPC_Created_Pages_List extends WP_List_Table {
         }
     
         echo '<ul class="subsubsub">';
-        foreach ($status_links as $key => $link) {
-            echo "<li class='$key'>$link</li>";
-        }
+            foreach ($status_links as $key => $link) {
+                $allowed_html = array(
+                    'a' => array(
+                        'href' => array(),
+                        'title' => array(),
+                        'class' => array(),
+                        'id' => array(),
+                        'style' => array()
+                    ),
+                    'span' => array(  // Allow <span> tags
+                        'class' => array()  // Allow the 'class' attribute on <span> tags
+                    )
+                );
+                echo "<li class='" . esc_attr($key) . "'>" . wp_kses($link, $allowed_html) . "</li>";
+            }
         echo '</ul>';
     }
     
@@ -134,7 +146,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
             if ($current_status == 'all' && $post->post_status !== 'publish') {
                 $post_state .= " — " . ucfirst($post->post_status);
             }
-                $formatted_date = date('Y/m/d \a\t g:i a', strtotime($info['date']));
+                $formatted_date = wp_date('Y/m/d \a\t g:i a', strtotime($info['date']));
                 $seo_template = get_post_meta($id, '_dpc_seo_override', true); 
                 $data[] = array(
                     'ID'          => $post->ID,
@@ -220,7 +232,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
     public function single_row($item) {
         $seo_template = $item['seo_template']; // Fetch the SEO Template setting
 
-        echo '<tr id="post-row-' . $item['ID'] . '">';
+        echo '<tr id="post-row-' . esc_attr($item['ID']) . '">';
         $this->single_row_columns($item);
         echo '</tr>';
 
@@ -233,7 +245,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
         }
     
         // Add Quick Edit form here with nonce
-        echo '<tr class="inline-edit-row inline-edit-row-page quick-edit-row quick-edit-row-page inline-edit-page inline-editor quick-edit-row" id="quick-edit-' . $item['ID'] . '" style="display: none;">';
+        echo '<tr class="inline-edit-row inline-edit-row-page quick-edit-row quick-edit-row-page inline-edit-page inline-editor quick-edit-row" id="quick-edit-' . esc_attr($item['ID']) . '" style="display: none;">';
         echo '<td colspan="4">';  // Adjust colspan as per your table structure
         echo '
         <div class="inline-edit-wrapper" role="region" aria-labelledby="quick-edit-legend">
@@ -243,7 +255,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
         <label>
           <span class="title">Title</span>
           <span class="input-text-wrap">
-            <input type="text" name="post_title" class="ptitle" value="' . esc_attr(strip_tags($item['page_title'])) . '">
+            <input type="text" name="post_title" class="ptitle" value="' . esc_attr(wp_strip_all_tags($item['page_title'])) . '">
           </span>
         </label>
         <label>
@@ -266,7 +278,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
             $pages = get_pages();
             foreach ($pages as $page) {
                 $selected = ($item['parent'] == $page->ID) ? 'selected' : '';
-                echo '<option value="' . esc_attr($page->ID) . '" ' . $selected . '>' . esc_html($page->post_title) . '</option>';
+                echo '<option value="' . esc_attr($page->ID) . '" ' . esc_attr($selected) . '>' . esc_html($page->post_title) . '</option>';
             }
             echo '
           </select>
@@ -279,7 +291,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
                 $statuses = get_post_statuses();
                 foreach ($statuses as $status => $label) {
                     $selected = ($item['status'] == $status) ? 'selected' : '';  // Ensure you have 'status' in $item
-                    echo '<option value="' . esc_attr($status) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+                    echo '<option value="' . esc_attr($status) . '" ' . esc_attr($selected) . '>' . esc_html($label) . '</option>';
                 }
             echo '</select>
           </label>
@@ -288,18 +300,18 @@ class DPC_Created_Pages_List extends WP_List_Table {
             <label class="inline-edit-group">
                 <span class="title">SEO</span>
                 <div class="input-text-wrap">
-                    <label for="seo_global"><input class="'. $global_checked .'" type="radio" name="seo_template" value="global" ' . $global_checked . '/> Global</label>
-                    <label for="seo_default"><input class="'.  $default_checked .'" style="margin-left:15px;" type="radio" name="seo_template" value="default" ' . $default_checked . '/> Default</label>
+                    <label for="seo_global"><input class="'. esc_attr($global_checked) .'" type="radio" name="seo_template" value="global" ' . esc_attr($global_checked) . '/> Global</label>
+                    <label for="seo_default"><input class="'.  esc_attr($default_checked) .'" style="margin-left:15px;" type="radio" name="seo_template" value="default" ' . esc_attr($default_checked) . '/> Default</label>
                 </div>
             </label>
         </div>
       </div>
     </fieldset>
     <div class="submit inline-edit-save">
-      <input type="hidden" id="_inline_edit" name="_inline_edit" value="361eeddf9d">
+      <input type="hidden" id="_inline_edit" name="_inline_edit" value="">
       '. wp_nonce_field('quick_edit_action', 'quick_edit_nonce') .'
-      <button class="button button-primary save save-quick-edit" data-id="' . $item['ID'] . '">Update</button>
-      <button class="button cancel cancel-quick-edit" data-id="' . $item['ID'] . '">Cancel</button>
+      <button class="button button-primary save save-quick-edit" data-id="' . esc_attr($item['ID']) . '">Update</button>
+      <button class="button cancel cancel-quick-edit" data-id="' . esc_attr($item['ID']) . '">Cancel</button>
       <span class="spinner"></span>
       <input type="hidden" name="post_view" value="list">
       <input type="hidden" name="screen" value="edit-page">

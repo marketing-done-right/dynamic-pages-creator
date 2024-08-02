@@ -151,7 +151,7 @@ class DPC_Admin_Menus {
         $shouldClearFields = get_transient('dpc_clear_fields');
         $options = get_option('dynamic_pages_creator_options');
         $value = $shouldClearFields ? '' : esc_attr($options['page_keywords'] ?? '');
-        echo "<input type='text' id='dynamic_pages_creator_keyword_field' name='dynamic_pages_creator_options[page_keywords]' value='" . $value . "' style='width: 100%;' autocomplete='off'>";
+        echo "<input type='text' id='dynamic_pages_creator_keyword_field' name='dynamic_pages_creator_options[page_keywords]' value='" . esc_attr($value) . "' style='width: 100%;' autocomplete='off'>";
 
         // Delete the transient so it does not affect future loads
         delete_transient('dpc_clear_fields');
@@ -166,7 +166,7 @@ class DPC_Admin_Menus {
         foreach ($pages as $page) {
             // Check if options and parent are set and not false
             $selected = (is_array($options) && isset($options['parent']) && $options['parent'] == $page->ID) ? 'selected' : '';
-            echo '<option value="' . esc_attr($page->ID) . '" ' . $selected . '>' . esc_html($page->post_title) . '</option>';
+            echo '<option value="' . esc_attr($page->ID) . '" ' . esc_attr($selected) . '>' . esc_html($page->post_title) . '</option>';
         }
         echo '</select>';
     }
@@ -198,7 +198,7 @@ class DPC_Admin_Menus {
     public function slug_format_field_callback() {
         $options = get_option('dynamic_pages_creator_options');
         $slug_format = isset($options['slug_format']) ? esc_attr($options['slug_format']) : '';
-        echo "<input style='width:50%;' type='text' id='dynamic_pages_creator_slug_format' name='dynamic_pages_creator_options[slug_format]' value='" . $slug_format . "' />";
+        echo "<input style='width:50%;' type='text' id='dynamic_pages_creator_slug_format' name='dynamic_pages_creator_options[slug_format]' value='" . esc_attr($slug_format) . "' />";
         echo "<p>Enter a custom slug format using [keyword] to include the keyword dynamically.</p>";
         echo "<p style='font-size: small; color: #666;'>Example: my-[keyword]-page. Leave empty for default slug behavior.</p>";
     }
@@ -216,7 +216,7 @@ class DPC_Admin_Menus {
         echo '<option value="">Select a Draft Page</option>';
         foreach ($draft_pages as $page) {
             $selected = selected($selected_template, $page->ID, false);
-            echo '<option value="' . esc_attr($page->ID) . '"' . $selected . '>' . esc_html($page->post_title) . '</option>';
+            echo '<option value="' . esc_attr($page->ID) . '"' . esc_attr($selected) . '>' . esc_html($page->post_title) . '</option>';
         }
         echo '</select>';
     }    
@@ -225,6 +225,7 @@ class DPC_Admin_Menus {
 
     public function render_main_page() {
         include 'views/main_settings_page.php';
+        wp_nonce_field('dynamic_pages_creator_save_settings', 'dynamic_pages_creator_nonce');
     }
 
     public function render_seo_settings_page() {
