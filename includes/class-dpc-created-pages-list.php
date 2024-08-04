@@ -273,7 +273,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
       <div class="inline-edit-col">
         <label>
           <span class="title">Parent</span>
-          <select name="post_parent" id="post_parent">
+          <select class="dpc-select2" name="post_parent" id="post_parent_' . esc_attr($item['ID']) . '">
           <option value="0"' . ($item['parent'] == 0 ? ' selected' : '') . '>Main Page (no parent)</option>';
             $pages = get_pages();
             foreach ($pages as $page) {
@@ -287,7 +287,7 @@ class DPC_Created_Pages_List extends WP_List_Table {
         <div class="inline-edit-group wp-clearfix">
           <label class="inline-edit-status alignleft">
             <span class="title">Status</span>
-            <select name="_status">';
+            <select name="_status" id="status_' . esc_attr($item['ID']) . '" class="dpc-select2">';
                 $statuses = get_post_statuses();
                 foreach ($statuses as $status => $label) {
                     $selected = ($item['status'] == $status) ? 'selected' : '';  // Ensure you have 'status' in $item

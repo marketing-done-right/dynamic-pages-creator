@@ -151,3 +151,13 @@ jQuery(document).ready(function($) {
     // Initial setup for all radio buttons on page load
     initializeRadioButtons($('body'));
 });
+
+jQuery(document).ready(function($) {
+    // Initialize Select2 on the specified dropdowns
+    $('.dpc-select2').select2();
+    
+    // Reinitialize Select2 when Quick Edit is opened
+    $('.quickedit-action').click(function() {
+        $('.dpc-select2').select2();
+    });
+});

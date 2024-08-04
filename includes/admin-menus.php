@@ -98,7 +98,7 @@ class DPC_Admin_Menus {
 
     // Enqueue scripts and styles
     public function enqueue_scripts_and_styles() {
-        $script_version = '1.2.0'; // Update the version number to bust the cache
+        $script_version = '1.3.0'; // Update the version number to bust the cache
         wp_enqueue_script('dpc-admin-js', plugins_url('js/admin-scripts.js', __FILE__), array('jquery'), $script_version, true);
         $shouldClearFields = get_option('dpc_should_clear_fields', false);
         // Pass the flag to JavaScript
@@ -112,6 +112,12 @@ class DPC_Admin_Menus {
         }
         $style_version = '1.2.0'; // Update the version number to bust the cache
         wp_enqueue_style('dpc-admin-css', plugins_url('css/admin-style.css', __FILE__) , array(), $style_version );
+
+        // Enqueue Select2 CSS
+        wp_enqueue_style('select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css');
+    
+        // Enqueue Select2 JS
+        wp_enqueue_script('select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js', array('jquery'), null, true);
     }
 
     // Validation functions for settings fields
@@ -161,7 +167,7 @@ class DPC_Admin_Menus {
     public function parent_field_callback() {
         $options = get_option('dynamic_pages_creator_options', []);  // Default to an empty array if the option doesn't exist
         $pages = get_pages();
-        echo '<select id="dynamic_pages_creator_parent_field" name="dynamic_pages_creator_options[parent]">';
+        echo '<select class="dpc-select2" id="dynamic_pages_creator_parent_field" name="dynamic_pages_creator_options[parent]">';
         echo '<option value="0">Main Page (no parent)</option>';
         foreach ($pages as $page) {
             // Check if options and parent are set and not false
@@ -212,7 +218,7 @@ class DPC_Admin_Menus {
         $draft_pages = get_posts($args);
         $selected_template = get_option('dynamic_pages_creator_page_template');
     
-        echo '<select id="dynamic_pages_creator_template_field" name="dynamic_pages_creator_options[page_template]">';
+        echo '<select class="dpc-select2" id="dynamic_pages_creator_template_field" name="dynamic_pages_creator_options[page_template]">';
         echo '<option value="">Select a Draft Page</option>';
         foreach ($draft_pages as $page) {
             $selected = selected($selected_template, $page->ID, false);

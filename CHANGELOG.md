@@ -2,6 +2,13 @@
 
 All notable changes to the "Dynamic Pages Creator with SEO" plugin will be documented in this file.
 
+## [1.3.0] - 2024-08-06
+
+### Added
+- Enqueued Select2 CSS and JS for improved dropdowns in the admin pages.
+- Enhanced `Draft Page Template` and `Parent Page` dropdowns with Select2 for better user experience.
+- Updated Quick Edit functionality to utilize Select2 for dropdowns, ensuring reinitialization when Quick Edit is opened.
+
 ## [1.2.0] - 2024-05-03
 
 ### Added
