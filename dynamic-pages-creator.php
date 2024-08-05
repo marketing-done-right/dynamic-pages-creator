@@ -32,6 +32,9 @@ defined('ABSPATH') or die('Direct script access disallowed.');
 
 define('DPC_PATH', plugin_dir_path(__FILE__));
 
+if ( !class_exists( 'YahnisElsts\PluginUpdateChecker\v5\PucFactory' ) ) {
+    require_once(DPC_PATH . 'plugin-update-checker/plugin-update-checker.php');
+}
 require_once(DPC_PATH . 'includes/admin-menus.php');
 require_once(DPC_PATH . 'includes/class-dpc-created-pages-list.php');
 require_once(DPC_PATH . 'includes/page-management.php');
@@ -47,6 +50,13 @@ function dpc_init()
 }
 
 add_action('plugins_loaded', 'dpc_init');
+
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+$MyUpdateChecker = PucFactory::buildUpdateChecker(
+    'https://core.marketingdr.co/updates/?action=get_metadata&slug=dynamic-pages-creator', // Metadata URL
+    __FILE__, // Full path to the main plugin file.
+    'dynamic-pages-creator' // Plugin slug.
+);
 
 // Schedule the cleanup event on plugin activation
 register_activation_hook(__FILE__, 'dpc_activate');
