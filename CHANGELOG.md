@@ -2,6 +2,11 @@
 
 All notable changes to the "Dynamic Pages Creator with SEO" plugin will be documented in this file.
 
+## [1.3.1] - 2024-08-12
+
+### Fixed
+- Resolved an issue where the "SEO settings updated successfully" notice was being displayed incorrectly when saving settings in other plugins.
+
 ## [1.3.0] - 2024-08-06
 
 ### Added

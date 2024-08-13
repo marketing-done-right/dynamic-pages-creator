@@ -76,7 +76,12 @@ class DPC_Admin_Menus {
         add_settings_field('dynamic_pages_creator_draft_page_field', 'Draft Page Template', array($this, 'dynamic_pages_creator_draft_page_field_callback'), 'dynamic-pages-creator', 'dynamic_pages_creator_main');
 
         // Check if the settings were saved and add an updated message
-        if (isset($_GET['settings-updated']) && $_GET['settings-updated']) {
+        if (
+            isset($_GET['settings-updated']) && 
+            $_GET['settings-updated'] && 
+            isset($_GET['page']) && 
+            $_GET['page'] === 'dynamic-pages-creator-seo'
+        ) {
             add_settings_error(
                 'dynamic_pages_creator_seo_settings',
                 'seo_settings_updated',

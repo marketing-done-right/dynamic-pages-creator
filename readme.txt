@@ -22,6 +22,9 @@ This plugin simplifies the management of content creation and SEO optimization b
 
 == Changelog ==
 
+= 1.3.1 =
+* Resolved an issue where the "SEO settings updated successfully." notice was being displayed incorrectly when saving settings in other plugins.
+
 = 1.3.0 =
 * Enqueued Select2 CSS and JS for improved dropdowns in the admin pages.
 * Enhanced `Draft Page Template` and `Parent Page` dropdowns with Select2 for better user experience.
